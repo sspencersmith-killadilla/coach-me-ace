@@ -178,11 +178,12 @@ export function JobPostingUpload() {
     return (
       <div className="mt-10 text-center">
         <Button
-          variant="ghost"
-          className="rounded-full text-muted-foreground"
+          variant="outline"
+          size="lg"
+          className="rounded-full border-primary/30 bg-card px-6 text-foreground shadow-sm hover:bg-primary/5 hover:text-primary"
           onClick={() => setOpen(true)}
         >
-          <Briefcase className="size-4" aria-hidden />
+          <Briefcase className="size-5" aria-hidden />
           Upload the recruitment brochure for more customized feedback (optional)
         </Button>
       </div>
