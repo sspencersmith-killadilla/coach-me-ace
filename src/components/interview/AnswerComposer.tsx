@@ -144,15 +144,15 @@ export function AnswerComposer({ value, onChange, onSubmit, onSkip, pending }: P
       />
 
       {pacing ? (
-        <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm" aria-live="polite">
-          <span className="font-mono text-foreground">{liveWords} words</span>
-          <span className="text-muted-foreground">
-            ≈ {formatSeconds(spokenSeconds)} spoken
-            {pace ? ` · ${pace} wpm` : ""}
+        <div className="mt-3 flex flex-wrap items-center text-sm" aria-live="polite">
+          <span className="mr-3 font-mono text-foreground">{liveWords} words</span>
+          <span className="mr-3 text-muted-foreground">
+            ≈ {formatSeconds(spokenSeconds)} spoken{pace ? ` · ${pace} wpm` : ""}
           </span>
           <span className={pacing.tone}>{pacing.label}</span>
         </div>
       ) : null}
+
 
       {recording ? (
         <div className="mt-3 flex items-center gap-3" aria-live="polite">
