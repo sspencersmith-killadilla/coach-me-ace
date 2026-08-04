@@ -8,6 +8,7 @@ import { QuestionCard } from "@/components/interview/QuestionCard";
 import { SessionProgress } from "@/components/interview/SessionProgress";
 import { Button } from "@/components/ui/button";
 import { QUESTIONS, QUESTION_COUNT } from "@/data/questions";
+import { useJobBrief } from "@/lib/job-brief-context";
 import { getInterviewFeedback, type InterviewFeedback } from "@/lib/feedback.functions";
 
 type Mode = "random" | "sequential";
@@ -49,6 +50,8 @@ function pickRandomIndex(exclude: number | null) {
 function Practice() {
   const { mode } = Route.useSearch();
   const requestFeedback = useServerFn(getInterviewFeedback);
+  const { brief } = useJobBrief();
+
 
   const [index, setIndex] = useState(() => (mode === "random" ? pickRandomIndex(null) : 0));
   const [answer, setAnswer] = useState("");
