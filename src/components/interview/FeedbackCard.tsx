@@ -1,6 +1,8 @@
 import { ArrowRight, Briefcase, FileUser, Heart, Lightbulb, RotateCcw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FollowUpCard } from "./FollowUpCard";
+import { VocalHabitsCard } from "./VocalHabitsCard";
+import { ConfidenceCheck } from "./ConfidenceCheck";
 import type { InterviewFeedback } from "@/lib/feedback.functions";
 import type { JobBrief } from "@/lib/job-brief";
 import type { Resume } from "@/lib/resume";
@@ -11,10 +13,13 @@ type Props = {
   answer: string;
   jobBrief: JobBrief | null;
   resume: Resume | null;
+  confidence: number | null;
+  onConfidence: (value: number) => void;
   onRetry: () => void;
   onNext: () => void;
   onPracticeFollowUp: (followUpQuestion: string) => void;
 };
+
 
 function encouragement(score: number) {
   if (score >= 9) return "Outstanding — this one is interview-ready.";
@@ -29,6 +34,8 @@ export function FeedbackCard({
   answer,
   jobBrief,
   resume,
+  confidence,
+  onConfidence,
   onRetry,
   onNext,
   onPracticeFollowUp,
@@ -101,6 +108,10 @@ export function FeedbackCard({
         </p>
       </section>
 
+      <VocalHabitsCard answer={answer} />
+
+      <ConfidenceCheck value={confidence} score={feedback.score} onChange={onConfidence} />
+
       <FollowUpCard
         question={question}
         answer={answer}
@@ -108,6 +119,7 @@ export function FeedbackCard({
         resume={resume}
         onPracticeFollowUp={onPracticeFollowUp}
       />
+
 
       <div className="flex flex-wrap gap-3 pt-1">
         <Button onClick={onNext} size="lg" className="rounded-full">
