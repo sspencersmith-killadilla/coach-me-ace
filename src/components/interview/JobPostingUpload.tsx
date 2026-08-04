@@ -25,6 +25,7 @@ export function JobPostingUpload() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"file" | "text">("file");
   const [text, setText] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -205,7 +206,7 @@ export function JobPostingUpload() {
           onClick={() => setOpen(true)}
         >
           <Briefcase className="size-5" aria-hidden />
-          Upload the recruitment brochure for more customized feedback (optional)
+          Add job details for customized feedback (optional)
         </Button>
       </div>
     );
@@ -216,77 +217,94 @@ export function JobPostingUpload() {
       <div>
         <h2 className="text-base font-semibold text-foreground">Add the job you're going for</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Upload the posting or brochure so the coach can measure your answers against the specific role.
+          Upload the posting or brochure, or paste the text, so the coach can measure your answers against
+          the specific role.
         </p>
       </div>
 
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="application/pdf,image/*,text/plain"
-        className="hidden"
-        onChange={(event) => void onFile(event.target.files?.[0])}
-      />
-
-      <div
-        role="button"
-        tabIndex={0}
-        aria-label="Upload recruitment brochure"
-        onDragOver={onDragOver}
-        onDragLeave={onDragLeave}
-        onDrop={onDrop}
-        onClick={() => fileInputRef.current?.click()}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            fileInputRef.current?.click();
-          }
-        }}
-        className={`cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition-colors ${
-          dragActive
-            ? "border-primary bg-primary/5"
-            : "border-border bg-muted/50 hover:bg-muted"
-        }`}
-      >
-        <div
-          className={`mx-auto flex size-12 items-center justify-center rounded-full ${
-            dragActive ? "bg-primary/10 text-primary" : "bg-background text-muted-foreground"
+      <div className="flex rounded-full bg-muted p-1">
+        <button
+          type="button"
+          onClick={() => setMode("file")}
+          className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+            mode === "file" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
           }`}
         >
-          <Upload className="size-6" aria-hidden />
-        </div>
-        <p className="mt-4 text-sm font-medium text-foreground">
-          {fileName ? fileName : "Drag and drop your brochure here"}
-        </p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          {fileName
-            ? "We'll use this document to tailor your feedback."
-            : "or click to browse — PDF, image, or plain text up to 10 MB"}
-        </p>
+          Upload file
+        </button>
+        <button
+          type="button"
+          onClick={() => setMode("text")}
+          className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+            mode === "text" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          Paste text
+        </button>
       </div>
 
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center" aria-hidden>
-          <span className="w-full border-t border-border" />
-        </div>
-        <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-card px-2 text-muted-foreground">or paste text</span>
-        </div>
-      </div>
+      {mode === "file" ? (
+        <>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="application/pdf,image/*,text/plain"
+            className="hidden"
+            onChange={(event) => void onFile(event.target.files?.[0])}
+          />
 
-      <Textarea
-        rows={5}
-        value={text}
-        disabled={pending}
-        placeholder="Paste the job description here"
-        onChange={(event) => setText(event.target.value)}
-      />
+          <div
+            role="button"
+            tabIndex={0}
+            aria-label="Upload recruitment brochure"
+            onDragOver={onDragOver}
+            onDragLeave={onDragLeave}
+            onDrop={onDrop}
+            onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                fileInputRef.current?.click();
+              }
+            }}
+            className={`cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition-colors ${
+              dragActive
+                ? "border-primary bg-primary/5"
+                : "border-border bg-muted/50 hover:bg-muted"
+            }`}
+          >
+            <div
+              className={`mx-auto flex size-12 items-center justify-center rounded-full ${
+                dragActive ? "bg-primary/10 text-primary" : "bg-background text-muted-foreground"
+              }`}
+            >
+              <Upload className="size-6" aria-hidden />
+            </div>
+            <p className="mt-4 text-sm font-medium text-foreground">
+              {fileName ? fileName : "Drag and drop your brochure here"}
+            </p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {fileName
+                ? "We'll use this document to tailor your feedback."
+                : "or click to browse — PDF, image, or plain text up to 10 MB"}
+            </p>
+          </div>
+        </>
+      ) : (
+        <Textarea
+          rows={8}
+          value={text}
+          disabled={pending}
+          placeholder="Paste the job description or recruitment brochure text here"
+          onChange={(event) => setText(event.target.value)}
+        />
+      )}
 
       {error ? <p className="text-sm text-warm-foreground">{error}</p> : null}
 
       <div className="flex flex-wrap gap-2">
         <Button
           className="rounded-full"
-          disabled={pending || (!text.trim() && !fileName)}
+          disabled={pending || (mode === "text" ? !text.trim() : !fileName)}
           onClick={() => void runParse({ text })}
         >
           {pending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
