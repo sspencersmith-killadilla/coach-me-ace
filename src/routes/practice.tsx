@@ -101,6 +101,7 @@ function Practice() {
     setFeedback(null);
     setError(null);
     setAnswer("");
+    setFollowUpQuestion(null);
     setIndex((current) =>
       mode === "random" ? pickRandomIndex(current) : (current + 1) % QUESTION_COUNT,
     );
@@ -109,6 +110,13 @@ function Practice() {
   const retry = useCallback(() => {
     setFeedback(null);
     setError(null);
+  }, []);
+
+  const practiceFollowUp = useCallback((followUp: string) => {
+    setFollowUpQuestion(followUp);
+    setFeedback(null);
+    setError(null);
+    setAnswer("");
   }, []);
 
   if (finished) {
