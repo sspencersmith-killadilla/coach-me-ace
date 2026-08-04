@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { BriefingProvider } from "../lib/briefing-context";
 import { JobBriefProvider } from "../lib/job-brief-context";
 import { ResumeProvider } from "../lib/resume-context";
 
@@ -129,8 +130,10 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <JobBriefProvider>
         <ResumeProvider>
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
+          <BriefingProvider>
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+          </BriefingProvider>
         </ResumeProvider>
       </JobBriefProvider>
     </QueryClientProvider>
