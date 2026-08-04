@@ -212,12 +212,11 @@ export function JobPostingUpload() {
   }
 
   return (
-    <div className="animate-rise mt-10 space-y-4 rounded-3xl border border-border bg-card p-6 text-left shadow-sm">
+    <div className="animate-rise mt-10 space-y-5 rounded-3xl border border-border bg-card p-6 text-left shadow-sm">
       <div>
         <h2 className="text-base font-semibold text-foreground">Add the job you're going for</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Upload the posting or brochure (PDF or image), or paste the text. Your feedback will then be
-          measured against that specific role.
+          Upload the posting or brochure so the coach can measure your answers against the specific role.
         </p>
       </div>
 
@@ -229,24 +228,56 @@ export function JobPostingUpload() {
         onChange={(event) => void onFile(event.target.files?.[0])}
       />
 
-      <div className="flex flex-wrap items-center gap-3">
-        <Button
-          variant="secondary"
-          className="rounded-full"
-          disabled={pending}
-          onClick={() => fileInputRef.current?.click()}
+      <div
+        role="button"
+        tabIndex={0}
+        aria-label="Upload recruitment brochure"
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDrop={onDrop}
+        onClick={() => fileInputRef.current?.click()}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            fileInputRef.current?.click();
+          }
+        }}
+        className={`cursor-pointer rounded-2xl border-2 border-dashed p-8 text-center transition-colors ${
+          dragActive
+            ? "border-primary bg-primary/5"
+            : "border-border bg-muted/50 hover:bg-muted"
+        }`}
+      >
+        <div
+          className={`mx-auto flex size-12 items-center justify-center rounded-full ${
+            dragActive ? "bg-primary/10 text-primary" : "bg-background text-muted-foreground"
+          }`}
         >
-          <Upload className="size-4" aria-hidden />
-          Upload a file
-        </Button>
-        {fileName ? <span className="text-sm text-muted-foreground">{fileName}</span> : null}
+          <Upload className="size-6" aria-hidden />
+        </div>
+        <p className="mt-4 text-sm font-medium text-foreground">
+          {fileName ? fileName : "Drag and drop your brochure here"}
+        </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {fileName
+            ? "We'll use this document to tailor your feedback."
+            : "or click to browse — PDF, image, or plain text up to 10 MB"}
+        </p>
+      </div>
+
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center" aria-hidden>
+          <span className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-card px-2 text-muted-foreground">or paste text</span>
+        </div>
       </div>
 
       <Textarea
-        rows={6}
+        rows={5}
         value={text}
         disabled={pending}
-        placeholder="…or paste the job description here"
+        placeholder="Paste the job description here"
         onChange={(event) => setText(event.target.value)}
       />
 
@@ -255,7 +286,7 @@ export function JobPostingUpload() {
       <div className="flex flex-wrap gap-2">
         <Button
           className="rounded-full"
-          disabled={pending || !text.trim()}
+          disabled={pending || (!text.trim() && !fileName)}
           onClick={() => void runParse({ text })}
         >
           {pending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
