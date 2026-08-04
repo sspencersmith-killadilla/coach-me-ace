@@ -1,59 +1,57 @@
-# Make the coach genuinely useful for "the big interview"
+# Making the coach remember, speak, and push back
 
-The app already covers the core loop well: 136 questions, spoken answers, job/resume context, structured feedback, follow-ups, and session length. To move from "practice tool" to "interview prep coach," the next work should target the moments that matter most before a high-stakes interview: knowing what to improve, simulating real pressure, and building confidence.
+All nine pieces of feedback are buildable on the current architecture — no accounts, no server storage. Two of them (progress file, spoken questions) do the heavy lifting; the rest ride on top.
 
-## Proposed roadmap
+## Priority 1 — Ship first
 
-### Phase 1 — Practice that targets real gaps (no backend needed)
+### 1. Progress file (export / import)
+- A `coach-progress.json` file the user downloads at the end of any session and re-uploads on the welcome screen next time.
+- Contents: per-question history (question, category, score, confidence, filler count, date), rolling category averages, and session summaries.
+- Welcome screen gains a "Your progress" card: sessions completed, average score trend, filler-word trend, weakest categories — all read from the loaded file.
+- Held in memory + sessionStorage during a session; nothing leaves the browser, so the "nothing on our servers" claim stays true. A one-line prompt at session end nudges the download.
 
-1. **Category filter on the welcome screen**
-   - Let users pick one or more categories (Leadership, Problem Solving, Setbacks, etc.) instead of random/sequential only.
-   - Add a "Weakest first" mode that uses the running session scores to serve low-scoring categories more often.
+### 2. The interviewer speaks
+- Each question is read aloud via text-to-speech through the existing AI gateway, streamed so it starts speaking almost immediately.
+- Auto-plays when a question appears (with a persistent mute toggle), plus a replay button.
+- Voice choice tied to the interviewer personality below: warm for supportive, flatter and clipped for the tough panelist.
 
-2. **Full mock-interview mode**
-   - A "Mock real interview" option: 5–10 questions back-to-back with a visible timer, no feedback until the end.
-   - At the end, show a recap with per-question scores, common themes, and 2–3 prioritized things to work on.
+## Priority 2 — Make the mock feel real
 
-3. **Spoken-answer polish**
-   - Detect filler words ("um," "like," "you know") and long pauses from the transcript.
-   - Surface a small "Vocal habits" note in the feedback card: count of fillers, pacing estimate, and one tip.
+### 3. Live follow-ups inside Full Mock
+- After each mock answer, the existing follow-up generator runs silently; roughly half the time the interviewer immediately asks one on the spot before moving on.
+- The follow-up is spoken like any other question and its answer is graded in the recap, so the transcript shows the real back-and-forth.
 
-4. **Post-answer reflection**
-   - After the user sees feedback, ask one quick question: "How confident did you feel?" (1–5).
-   - Use confidence + score to flag answers worth revisiting.
+### 4. Second interviewer personality
+- A "Tough panelist" toggle on the welcome screen. Same scoring rubric, colder delivery: shorter praise, blunt critique, more frequent on-the-spot follow-ups, flatter TTS voice.
+- Supportive stays the default; the tough mode is opt-in and clearly labelled as practice for the worst-case room.
 
-### Phase 2 — Richer coaching (still no persistent backend)
+### 5. Live pacing counter
+- While recording or typing, a small counter shows elapsed speaking time and word count, turning amber past ~90 seconds and red past ~2 minutes.
+- Replaces after-the-fact "this ran long" with in-the-moment awareness; the post-answer vocal habits card stays.
 
-5. **Company-specific question generator**
-   - Use the parsed job brief + public company facts to generate 3–5 likely questions for that exact role/company.
-   - Surface these as a "Questions to expect" card on the welcome screen.
+## Priority 3 — Continuity and calibration
 
-6. **STAR method mini-lessons**
-   - Add a "Learn the STAR method" expandable section with a 60-second example and a checklist.
-   - Optionally score answers on STAR completeness (Situation, Task, Action, Result) and show which pieces were missing.
+### 6. Filler words tracked across questions
+- Vocal habits card gains a trend line: this answer's filler rate versus the session average and, when a progress file is loaded, versus previous sessions.
+- Explicit callouts like "down from 15 'um's on question one."
 
-7. **Side-by-side answer comparison**
-   - Show the user's original answer next to the rewritten STAR answer with inline highlights for what changed.
+### 7. Weak spots that remember
+- "Focus my weak spots" reads category averages from the loaded progress file first, falling back to current-session scores.
+- Welcome screen shows the top three weak categories from history before the session starts.
 
-### Phase 3 — Long-term prep (requires backend / Lovable Cloud)
-
-8. **Saved practice history**
-   - Store answers, scores, and feedback per user so they can see progress across sessions.
-   - Trend line of average score and confidence over time.
-
-9. **Weak-area workouts**
-   - Automatically suggest a focused 5-question drill based on the user's lowest-scoring categories from all prior sessions.
-
-10. **Shareable prep report**
-    - Generate a simple PDF/report of strengths, growth areas, and sample answers to review with a human coach or mentor before the interview.
-
-## Recommended first step
-
-Start with Phase 1, items 1–3. They keep the app stateless and lightweight while adding the most prep value: targeted categories, a realistic timed mock, and spoken-answer habit feedback.
+### 8. Difficulty calibration from the resume
+- The resume parser also infers a seniority level (early career / mid / senior / executive).
+- That level steers question depth and the model answer's register — a new grad gets scope-appropriate expectations, a VP candidate gets pushed on strategy, org design, and trade-offs.
+- Manual override on the welcome screen for anyone who skips the resume upload.
 
 ## Technical notes
 
-- Phase 1 can reuse existing session state and localStorage/sessionStorage.
-- The "full mock" mode is mostly a UI/state change around the existing feedback loop.
-- Filler-word detection can run client-side on the transcript string.
-- Phase 3 should wait until there is a clear need for accounts and history, because it requires Lovable Cloud auth and database setup.
+- Progress file: plain JSON with a version field, validated on import; a helper module owns serialise/parse/merge, and a context provider exposes history to the welcome and practice screens.
+- TTS: a server route streams from the AI gateway (`openai/gpt-4o-mini-tts`, SSE + PCM) and the client plays chunks as they arrive; questions are short, so a per-question cache avoids re-billing replays.
+- Personality and seniority become extra fields on the feedback and follow-up prompts — one rubric, different delivery, no schema churn.
+- Live pacing counter is client-only, driven by the existing recorder timer and the transcript string.
+- Mock follow-ups reuse `follow-ups.functions.ts` as-is; only the mock loop's state machine changes.
+
+## Suggested build order
+
+Progress file → spoken questions → live pacing counter → cross-question filler trend → history-aware weak spots → mock follow-ups → tough panelist → seniority calibration.
