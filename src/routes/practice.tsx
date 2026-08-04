@@ -65,8 +65,11 @@ function Practice() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scores, setScores] = useState<number[]>([]);
+  const [followUpQuestion, setFollowUpQuestion] = useState<string | null>(null);
 
   const question = QUESTIONS[index]!;
+  const activeQuestion = followUpQuestion ?? question.text;
+  const isFollowUp = followUpQuestion != null;
   const averageScore = useMemo(
     () => (scores.length ? scores.reduce((sum, value) => sum + value, 0) / scores.length : null),
     [scores],
@@ -79,7 +82,7 @@ function Practice() {
     try {
       const result = await requestFeedback({
         data: {
-          question: question.text,
+          question: activeQuestion,
           answer: answer.trim(),
           ...(brief ? { jobBrief: brief } : {}),
           ...(resume ? { resume } : {}),
@@ -92,12 +95,13 @@ function Practice() {
     } finally {
       setPending(false);
     }
-  }, [answer, brief, resume, question.text, requestFeedback]);
+  }, [answer, brief, resume, activeQuestion, requestFeedback]);
 
   const nextQuestion = useCallback(() => {
     setFeedback(null);
     setError(null);
     setAnswer("");
+    setFollowUpQuestion(null);
     setIndex((current) =>
       mode === "random" ? pickRandomIndex(current) : (current + 1) % QUESTION_COUNT,
     );
@@ -106,6 +110,13 @@ function Practice() {
   const retry = useCallback(() => {
     setFeedback(null);
     setError(null);
+  }, []);
+
+  const practiceFollowUp = useCallback((followUp: string) => {
+    setFollowUpQuestion(followUp);
+    setFeedback(null);
+    setError(null);
+    setAnswer("");
   }, []);
 
   if (finished) {
@@ -144,10 +155,11 @@ function Practice() {
 
       <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
         <QuestionCard
-          question={question.text}
+          question={activeQuestion}
           category={question.category}
           index={question.id}
           total={QUESTION_COUNT}
+          isFollowUp={isFollowUp}
         />
 
         <div className="mt-8">
@@ -160,7 +172,16 @@ function Practice() {
               </p>
             </div>
           ) : feedback ? (
-            <FeedbackCard feedback={feedback} onRetry={retry} onNext={nextQuestion} />
+            <FeedbackCard
+              feedback={feedback}
+              question={activeQuestion}
+              answer={answer}
+              jobBrief={brief}
+              resume={resume}
+              onRetry={retry}
+              onNext={nextQuestion}
+              onPracticeFollowUp={practiceFollowUp}
+            />
           ) : (
             <>
               {error ? (

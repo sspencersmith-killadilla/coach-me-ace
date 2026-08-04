@@ -1,11 +1,19 @@
 import { ArrowRight, Briefcase, FileUser, Heart, Lightbulb, RotateCcw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FollowUpCard } from "./FollowUpCard";
 import type { InterviewFeedback } from "@/lib/feedback.functions";
+import type { JobBrief } from "@/lib/job-brief";
+import type { Resume } from "@/lib/resume";
 
 type Props = {
   feedback: InterviewFeedback;
+  question: string;
+  answer: string;
+  jobBrief: JobBrief | null;
+  resume: Resume | null;
   onRetry: () => void;
   onNext: () => void;
+  onPracticeFollowUp: (followUpQuestion: string) => void;
 };
 
 function encouragement(score: number) {
@@ -15,7 +23,16 @@ function encouragement(score: number) {
   return "Great first pass — every rep makes this easier.";
 }
 
-export function FeedbackCard({ feedback, onRetry, onNext }: Props) {
+export function FeedbackCard({
+  feedback,
+  question,
+  answer,
+  jobBrief,
+  resume,
+  onRetry,
+  onNext,
+  onPracticeFollowUp,
+}: Props) {
   return (
     <div className="animate-rise space-y-4">
       <div className="flex flex-col items-center gap-3 rounded-3xl border border-border bg-warm p-6 text-center">
@@ -83,6 +100,14 @@ export function FeedbackCard({ feedback, onRetry, onNext }: Props) {
           {feedback.starAnswer}
         </p>
       </section>
+
+      <FollowUpCard
+        question={question}
+        answer={answer}
+        jobBrief={jobBrief}
+        resume={resume}
+        onPracticeFollowUp={onPracticeFollowUp}
+      />
 
       <div className="flex flex-wrap gap-3 pt-1">
         <Button onClick={onNext} size="lg" className="rounded-full">
