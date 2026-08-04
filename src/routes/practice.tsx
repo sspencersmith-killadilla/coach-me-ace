@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { QUESTION_COUNT } from "@/data/questions";
 import { useQuestionVoice } from "@/hooks/use-question-voice";
 import { analyzeVocalHabits } from "@/lib/answer-habits";
+import { useBriefing } from "@/lib/briefing-context";
 import { useJobBrief } from "@/lib/job-brief-context";
 import {
   appendRecords,
@@ -81,6 +82,7 @@ function Practice() {
   const requestFollowUps = useServerFn(getFollowUps);
   const { brief } = useJobBrief();
   const { resume } = useResume();
+  const { queuedQuestions, setQueuedQuestions, hydrated: briefingHydrated } = useBriefing();
   const voice = useQuestionVoice(tone);
 
   const pool = useMemo(() => buildPool(parseCategories(cats)), [cats]);
@@ -101,6 +103,8 @@ function Practice() {
   const [followUpQuestion, setFollowUpQuestion] = useState<string | null>(null);
   const [historyFillerRate, setHistoryFillerRate] = useState<number | null>(null);
   const [seededHistory, setSeededHistory] = useState(false);
+  const [briefingQueue, setBriefingQueue] = useState<string[]>([]);
+  const [seededQueue, setSeededQueue] = useState(false);
 
   // Mock-interview state
   const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
@@ -118,8 +122,19 @@ function Practice() {
     setSeededHistory(true);
   }, []);
 
+  // Questions the pre-interview briefing suggested come first, once per session.
+  useEffect(() => {
+    if (!briefingHydrated || seededQueue) return;
+    if (queuedQuestions.length) {
+      setBriefingQueue(queuedQuestions);
+      setQueuedQuestions([]);
+    }
+    setSeededQueue(true);
+  }, [briefingHydrated, seededQueue, queuedQuestions, setQueuedQuestions]);
+
   const question = pool.find((item) => item.id === questionId) ?? pool[0]!;
-  const activeQuestion = followUpQuestion ?? question.text;
+  const briefingQuestion = briefingQueue[0] ?? null;
+  const activeQuestion = followUpQuestion ?? briefingQuestion ?? question.text;
   const isFollowUp = followUpQuestion != null;
   const answeredCount = isMock
     ? transcript.filter((entry) => !entry.isFollowUp).length
@@ -177,12 +192,16 @@ function Practice() {
     setError(null);
     setAnswer("");
     setFollowUpQuestion(null);
+    if (briefingQueue.length) {
+      setBriefingQueue((previous) => previous.slice(1));
+      return;
+    }
     setAskedIds((previous) => {
       const asked = previous.includes(question.id) ? previous : [...previous, question.id];
       setQuestionId(pickNext(pool, mode, asked, question.id, categoryScores));
       return asked;
     });
-  }, [pool, mode, question.id, categoryScores]);
+  }, [pool, mode, question.id, categoryScores, briefingQueue.length]);
 
   const submit = useCallback(async () => {
     const given = answer.trim();
