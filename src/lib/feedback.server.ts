@@ -5,10 +5,12 @@ import {
   BASE_SYSTEM_PROMPT,
   FeedbackSchema,
   JOB_CONTEXT_PROMPT,
+  RESUME_CONTEXT_PROMPT,
   type FeedbackInput,
   type InterviewFeedback,
 } from "./feedback-schema";
 import { describeJobBrief } from "./job-brief";
+import { describeResume } from "./resume";
 
 type Input = z.infer<typeof FeedbackInput>;
 
@@ -18,9 +20,16 @@ export async function generateInterviewFeedback(data: Input): Promise<InterviewF
 
   const gateway = createLovableAiGatewayProvider(key);
 
-  const system = data.jobBrief
-    ? `${BASE_SYSTEM_PROMPT}\n\n${JOB_CONTEXT_PROMPT}\n\n${describeJobBrief(data.jobBrief)}`
-    : BASE_SYSTEM_PROMPT;
+  const sections: string[] = [BASE_SYSTEM_PROMPT];
+  if (data.jobBrief) {
+    sections.push(JOB_CONTEXT_PROMPT);
+    sections.push(describeJobBrief(data.jobBrief));
+  }
+  if (data.resume) {
+    sections.push(RESUME_CONTEXT_PROMPT);
+    sections.push(describeResume(data.resume));
+  }
+  const system = sections.join("\n\n");
 
   try {
     const result = streamText({
