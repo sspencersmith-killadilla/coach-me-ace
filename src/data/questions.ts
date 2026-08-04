@@ -198,3 +198,9 @@ export const QUESTIONS: Question[] = groups.flatMap((group) =>
 ).map((q, i) => ({ id: i + 1, ...q }));
 
 export const QUESTION_COUNT = QUESTIONS.length;
+
+export const CATEGORIES: string[] = Array.from(new Set(QUESTIONS.map((q) => q.category)));
+
+export function countByCategory(category: string) {
+  return QUESTIONS.filter((q) => q.category === category).length;
+}

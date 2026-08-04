@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Heart, MessageCircleQuestion, Mic } from "lucide-react";
+import { Heart, MessageCircleQuestion, Mic, Target, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { JobPostingUpload } from "@/components/interview/JobPostingUpload";
 import { ResumeUpload } from "@/components/interview/ResumeUpload";
-import { QUESTION_COUNT } from "@/data/questions";
-import { useState } from "react";
+import { CATEGORIES, QUESTIONS, QUESTION_COUNT } from "@/data/questions";
+import { useMemo, useState } from "react";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -55,6 +56,24 @@ const highlights = [
 
 function Welcome() {
   const [count, setCount] = useState(QUESTION_COUNT);
+  const [selected, setSelected] = useState<string[]>([]);
+
+  const cats = selected.join(",");
+  const available = useMemo(
+    () =>
+      selected.length
+        ? QUESTIONS.filter((question) => selected.includes(question.category)).length
+        : QUESTION_COUNT,
+    [selected],
+  );
+  const sessionSize = Math.min(count, available);
+
+  const toggle = (category: string) =>
+    setSelected((previous) =>
+      previous.includes(category)
+        ? previous.filter((value) => value !== category)
+        : [...previous, category],
+    );
 
   return (
     <main className="min-h-screen bg-background">
@@ -74,16 +93,35 @@ function Welcome() {
 
           <div className="mt-9 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "random", count }}>
+              <Link to="/practice" search={{ mode: "random", count, cats }}>
                 Start interview
               </Link>
             </Button>
             <Button asChild variant="secondary" size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "sequential", count }}>
+              <Link to="/practice" search={{ mode: "sequential", count, cats }}>
                 Go in order instead
               </Link>
             </Button>
           </div>
+
+          <div className="mt-3 flex flex-wrap justify-center gap-3">
+            <Button asChild variant="outline" size="lg" className="rounded-full px-7">
+              <Link to="/practice" search={{ mode: "weakest", count, cats }}>
+                <Target className="size-4" aria-hidden />
+                Focus my weak spots
+              </Link>
+            </Button>
+            <Button asChild variant="outline" size="lg" className="rounded-full px-7">
+              <Link to="/practice" search={{ mode: "mock", count, cats }}>
+                <Timer className="size-4" aria-hidden />
+                Run a full mock interview
+              </Link>
+            </Button>
+          </div>
+          <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+            A mock interview runs {sessionSize} question{sessionSize === 1 ? "" : "s"} back-to-back
+            on a timer, with all the feedback saved for the end — just like the real thing.
+          </p>
 
           <div className="mx-auto mt-6 flex w-fit flex-col items-center gap-2 rounded-3xl border border-border bg-card p-4 shadow-sm sm:flex-row">
             <span className="text-sm font-medium text-foreground">Session length:</span>
@@ -104,7 +142,49 @@ function Welcome() {
               ))}
             </div>
           </div>
+
+          <div className="mt-6 rounded-3xl border border-border bg-card p-5 text-left shadow-sm">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
+              <h2 className="text-sm font-semibold text-foreground">
+                Focus on certain kinds of questions
+              </h2>
+              <span className="text-sm text-muted-foreground">
+                {selected.length ? `${available} questions selected` : "All categories"}
+              </span>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {CATEGORIES.map((category) => {
+                const active = selected.includes(category);
+                return (
+                  <button
+                    key={category}
+                    type="button"
+                    onClick={() => toggle(category)}
+                    aria-pressed={active}
+                    className={`rounded-full border px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                      active
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border text-muted-foreground hover:border-primary/40 hover:text-foreground"
+                    }`}
+                  >
+                    {category}
+                  </button>
+                );
+              })}
+              {selected.length ? (
+                <button
+                  type="button"
+                  onClick={() => setSelected([])}
+                  className="rounded-full px-3.5 py-1.5 text-sm font-medium text-muted-foreground underline-offset-4 hover:underline"
+                >
+                  Clear
+                </button>
+              ) : null}
+            </div>
+          </div>
         </div>
+
+
 
         <JobPostingUpload />
         <ResumeUpload />
