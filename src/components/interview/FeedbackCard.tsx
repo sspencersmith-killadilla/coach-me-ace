@@ -14,6 +14,7 @@ type Props = {
   jobBrief: JobBrief | null;
   resume: Resume | null;
   confidence: number | null;
+  tone?: "warm" | "tough";
   previousFillerRate?: number | null;
   previousFillerLabel?: string;
   onConfidence: (value: number) => void;
@@ -23,6 +24,13 @@ type Props = {
 };
 
 
+
+function toughVerdict(score: number) {
+  if (score >= 9) return "That would hold up in front of a skeptical panel.";
+  if (score >= 7) return "Solid. Not yet memorable.";
+  if (score >= 5) return "Passable. A panel would push back on the thin parts.";
+  return "This one wouldn't survive the room yet. Rework it and go again.";
+}
 
 function encouragement(score: number) {
   if (score >= 9) return "Outstanding — this one is interview-ready.";
@@ -38,6 +46,7 @@ export function FeedbackCard({
   jobBrief,
   resume,
   confidence,
+  tone,
   previousFillerRate,
   previousFillerLabel,
   onConfidence,
@@ -54,7 +63,7 @@ export function FeedbackCard({
           <span className="mt-2 text-sm text-muted-foreground">/10</span>
         </div>
         <p className="max-w-md text-sm font-medium text-warm-foreground">
-          {encouragement(feedback.score)}
+          {tone === "tough" ? toughVerdict(feedback.score) : encouragement(feedback.score)}
         </p>
       </div>
 
