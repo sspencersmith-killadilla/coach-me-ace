@@ -2,9 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, MessageCircleQuestion, Mic, Target, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { JobPostingUpload } from "@/components/interview/JobPostingUpload";
+import { ProgressCard } from "@/components/interview/ProgressCard";
 import { ResumeUpload } from "@/components/interview/ResumeUpload";
 import { CATEGORIES, QUESTIONS, QUESTION_COUNT } from "@/data/questions";
 import { useMemo, useState } from "react";
+
 
 
 export const Route = createFileRoute("/")({
@@ -57,8 +59,10 @@ const highlights = [
 function Welcome() {
   const [count, setCount] = useState(QUESTION_COUNT);
   const [selected, setSelected] = useState<string[]>([]);
+  const [tone, setTone] = useState<"warm" | "tough">("warm");
 
   const cats = selected.join(",");
+
   const available = useMemo(
     () =>
       selected.length
@@ -93,12 +97,12 @@ function Welcome() {
 
           <div className="mt-9 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "random", count, cats }}>
+              <Link to="/practice" search={{ mode: "random", count, cats, tone }}>
                 Start interview
               </Link>
             </Button>
             <Button asChild variant="secondary" size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "sequential", count, cats }}>
+              <Link to="/practice" search={{ mode: "sequential", count, cats, tone }}>
                 Go in order instead
               </Link>
             </Button>
@@ -106,13 +110,13 @@ function Welcome() {
 
           <div className="mt-3 flex flex-wrap justify-center gap-3">
             <Button asChild variant="outline" size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "weakest", count, cats }}>
+              <Link to="/practice" search={{ mode: "weakest", count, cats, tone }}>
                 <Target className="size-4" aria-hidden />
                 Focus my weak spots
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "mock", count, cats }}>
+              <Link to="/practice" search={{ mode: "mock", count, cats, tone }}>
                 <Timer className="size-4" aria-hidden />
                 Run a full mock interview
               </Link>
@@ -120,7 +124,8 @@ function Welcome() {
           </div>
           <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
             A mock interview runs {sessionSize} question{sessionSize === 1 ? "" : "s"} back-to-back
-            on a timer, with all the feedback saved for the end — just like the real thing.
+            on a timer, with unscripted follow-ups and all the feedback saved for the end — just
+            like the real thing.
           </p>
 
           <div className="mx-auto mt-6 flex w-fit flex-col items-center gap-2 rounded-3xl border border-border bg-card p-4 shadow-sm sm:flex-row">
@@ -142,6 +147,37 @@ function Welcome() {
               ))}
             </div>
           </div>
+
+          <div className="mx-auto mt-4 flex w-fit flex-col items-center gap-2 rounded-3xl border border-border bg-card p-4 shadow-sm sm:flex-row">
+            <span className="text-sm font-medium text-foreground">Interviewer:</span>
+            <div className="flex rounded-full bg-muted p-1">
+              {(
+                [
+                  { value: "warm", label: "Supportive coach" },
+                  { value: "tough", label: "Tough panelist" },
+                ] as const
+              ).map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setTone(option.value)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    tone === option.value
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
+          <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
+            {tone === "tough"
+              ? "Same rubric, colder delivery: stricter scores, blunt critique, and a voice that isn't charmed by your STAR story."
+              : "Warm, encouraging feedback that leads with what worked."}
+          </p>
+
 
           <div className="mt-6 rounded-3xl border border-border bg-card p-5 text-left shadow-sm">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -183,8 +219,7 @@ function Welcome() {
             </div>
           </div>
         </div>
-
-
+        <ProgressCard />
 
         <JobPostingUpload />
         <ResumeUpload />
@@ -200,8 +235,10 @@ function Welcome() {
         </div>
 
         <p className="mt-12 text-center text-sm text-muted-foreground">
-          Nothing you write is saved — it's just you, practicing.
+          Your answers never leave your browser — progress is stored on this device, and yours to
+          export whenever you want.
         </p>
+
       </div>
     </main>
   );

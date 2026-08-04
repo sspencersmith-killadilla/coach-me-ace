@@ -14,11 +14,14 @@ type Props = {
   jobBrief: JobBrief | null;
   resume: Resume | null;
   confidence: number | null;
+  previousFillerRate?: number | null;
+  previousFillerLabel?: string;
   onConfidence: (value: number) => void;
   onRetry: () => void;
   onNext: () => void;
   onPracticeFollowUp: (followUpQuestion: string) => void;
 };
+
 
 
 function encouragement(score: number) {
@@ -35,11 +38,14 @@ export function FeedbackCard({
   jobBrief,
   resume,
   confidence,
+  previousFillerRate,
+  previousFillerLabel,
   onConfidence,
   onRetry,
   onNext,
   onPracticeFollowUp,
 }: Props) {
+
   return (
     <div className="animate-rise space-y-4">
       <div className="flex flex-col items-center gap-3 rounded-3xl border border-border bg-warm p-6 text-center">
@@ -108,7 +114,12 @@ export function FeedbackCard({
         </p>
       </section>
 
-      <VocalHabitsCard answer={answer} />
+      <VocalHabitsCard
+        answer={answer}
+        {...(previousFillerRate != null ? { previousFillerRate } : {})}
+        {...(previousFillerLabel ? { previousFillerLabel } : {})}
+      />
+
 
       <ConfidenceCheck value={confidence} score={feedback.score} onChange={onConfidence} />
 
