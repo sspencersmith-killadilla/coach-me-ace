@@ -3,6 +3,7 @@ import { z } from "zod";
 export const JobBriefSchema = z.object({
   title: z.string(),
   company: z.string(),
+  industry: z.string().optional(),
   responsibilities: z.array(z.string()),
   skills: z.array(z.string()),
   tone: z.string(),
