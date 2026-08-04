@@ -65,8 +65,11 @@ function Practice() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [scores, setScores] = useState<number[]>([]);
+  const [followUpQuestion, setFollowUpQuestion] = useState<string | null>(null);
 
   const question = QUESTIONS[index]!;
+  const activeQuestion = followUpQuestion ?? question.text;
+  const isFollowUp = followUpQuestion != null;
   const averageScore = useMemo(
     () => (scores.length ? scores.reduce((sum, value) => sum + value, 0) / scores.length : null),
     [scores],
