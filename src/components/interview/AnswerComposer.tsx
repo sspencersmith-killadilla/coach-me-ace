@@ -114,6 +114,20 @@ export function AnswerComposer({ value, onChange, onSubmit, onSkip, pending }: P
 
   const meterWidth = Math.min(100, Math.round(level * 260));
 
+  const liveWords = value.trim() ? value.trim().split(/\s+/).length : 0;
+  const spokenSeconds = Math.round((liveWords / 150) * 60);
+  const pace = recording && seconds > 5 ? Math.round((liveWords / seconds) * 60) : null;
+  const pacing =
+    liveWords === 0
+      ? null
+      : liveWords > 320
+        ? { label: "Running long — start landing the result", tone: "text-warm-foreground" }
+        : liveWords > 240
+          ? { label: "Good length — begin wrapping up", tone: "text-muted-foreground" }
+          : liveWords < 60
+            ? { label: "Room for one more concrete detail", tone: "text-muted-foreground" }
+            : { label: "Nice length for an interview answer", tone: "text-primary" };
+
   return (
     <div className="animate-rise rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
       <label htmlFor="answer" className="text-sm font-medium text-muted-foreground">
@@ -128,6 +142,17 @@ export function AnswerComposer({ value, onChange, onSubmit, onSkip, pending }: P
         disabled={pending}
         className="mt-3 resize-y border-input bg-background text-base leading-relaxed"
       />
+
+      {pacing ? (
+        <div className="mt-3 flex flex-wrap items-center text-sm" aria-live="polite">
+          <span className="mr-3 font-mono text-foreground">{liveWords} words</span>
+          <span className="mr-3 text-muted-foreground">
+            ≈ {formatSeconds(spokenSeconds)} spoken{pace ? ` · ${pace} wpm` : ""}
+          </span>
+          <span className={pacing.tone}>{pacing.label}</span>
+        </div>
+      ) : null}
+
 
       {recording ? (
         <div className="mt-3 flex items-center gap-3" aria-live="polite">
@@ -145,6 +170,7 @@ export function AnswerComposer({ value, onChange, onSubmit, onSkip, pending }: P
           <span className="text-sm text-muted-foreground">Listening…</span>
         </div>
       ) : null}
+
 
       {transcribing ? (
         <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground" aria-live="polite">

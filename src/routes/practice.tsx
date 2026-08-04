@@ -9,24 +9,37 @@ import { QuestionCard } from "@/components/interview/QuestionCard";
 import { SessionProgress } from "@/components/interview/SessionProgress";
 import { Button } from "@/components/ui/button";
 import { QUESTION_COUNT } from "@/data/questions";
+import { useQuestionVoice } from "@/hooks/use-question-voice";
+import { analyzeVocalHabits } from "@/lib/answer-habits";
 import { useJobBrief } from "@/lib/job-brief-context";
+import {
+  appendRecords,
+  categoryScores as historyCategoryScores,
+  loadProgress,
+  saveProgress,
+  summarize,
+  type AnswerRecord,
+} from "@/lib/progress";
 import { useResume } from "@/lib/resume-context";
 import { buildPool, parseCategories, pickNext, type Mode } from "@/lib/session";
 import { getInterviewFeedback, type InterviewFeedback } from "@/lib/feedback.functions";
+import { getFollowUps } from "@/lib/follow-ups.functions";
 
 const SESSION_OPTIONS = [5, 10, 20, QUESTION_COUNT];
 const MODES: Mode[] = ["random", "sequential", "weakest", "mock"];
+type Tone = "warm" | "tough";
 
 export const Route = createFileRoute("/practice")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { mode: Mode; count: number; cats: string } => {
+  ): { mode: Mode; count: number; cats: string; tone: Tone } => {
     const rawMode = String(search["mode"] ?? "");
     const mode = (MODES as string[]).includes(rawMode) ? (rawMode as Mode) : "random";
     const rawCount = Number(search["count"]);
     const count = SESSION_OPTIONS.includes(rawCount) ? rawCount : QUESTION_COUNT;
     const cats = typeof search["cats"] === "string" ? search["cats"] : "";
-    return { mode, count, cats };
+    const tone: Tone = search["tone"] === "tough" ? "tough" : "warm";
+    return { mode, count, cats, tone };
   },
   head: () => ({
     meta: [
@@ -55,11 +68,20 @@ function formatClock(total: number) {
   return `${minutes}:${String(seconds).padStart(2, "0")}`;
 }
 
+function wordsIn(text: string) {
+  const trimmed = text.trim();
+  return trimmed ? trimmed.split(/\s+/).length : 0;
+}
+
+type TranscriptEntry = { question: string; answer: string; isFollowUp: boolean };
+
 function Practice() {
-  const { mode, count, cats } = Route.useSearch();
+  const { mode, count, cats, tone } = Route.useSearch();
   const requestFeedback = useServerFn(getInterviewFeedback);
+  const requestFollowUps = useServerFn(getFollowUps);
   const { brief } = useJobBrief();
   const { resume } = useResume();
+  const voice = useQuestionVoice(tone);
 
   const pool = useMemo(() => buildPool(parseCategories(cats)), [cats]);
   const sessionTotal = Math.min(count, pool.length);
@@ -77,17 +99,31 @@ function Practice() {
   const [scores, setScores] = useState<number[]>([]);
   const [categoryScores, setCategoryScores] = useState<Record<string, number[]>>({});
   const [followUpQuestion, setFollowUpQuestion] = useState<string | null>(null);
+  const [historyFillerRate, setHistoryFillerRate] = useState<number | null>(null);
+  const [seededHistory, setSeededHistory] = useState(false);
 
   // Mock-interview state
-  const [transcript, setTranscript] = useState<{ question: string; answer: string }[]>([]);
+  const [transcript, setTranscript] = useState<TranscriptEntry[]>([]);
   const [mockResults, setMockResults] = useState<MockResult[]>([]);
   const [grading, setGrading] = useState(false);
   const [elapsed, setElapsed] = useState(0);
 
+  // Weak-spot tracking and filler trends start from saved history, not zero.
+  useEffect(() => {
+    const progress = loadProgress();
+    if (progress.records.length) {
+      setCategoryScores(historyCategoryScores(progress));
+      setHistoryFillerRate(summarize(progress).fillerRate);
+    }
+    setSeededHistory(true);
+  }, []);
+
   const question = pool.find((item) => item.id === questionId) ?? pool[0]!;
   const activeQuestion = followUpQuestion ?? question.text;
   const isFollowUp = followUpQuestion != null;
-  const answeredCount = isMock ? transcript.length : scores.length;
+  const answeredCount = isMock
+    ? transcript.filter((entry) => !entry.isFollowUp).length
+    : scores.length;
   const averageScore = useMemo(
     () => (scores.length ? scores.reduce((sum, value) => sum + value, 0) / scores.length : null),
     [scores],
@@ -99,6 +135,41 @@ function Practice() {
     const id = setInterval(() => setElapsed((value) => value + 1), 1000);
     return () => clearInterval(id);
   }, [isMock, finished]);
+
+  // The interviewer reads each new question aloud.
+  useEffect(() => {
+    if (voice.muted || !voice.ready || finished) return;
+    void voice.speak(activeQuestion);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeQuestion, voice.muted, voice.ready, finished]);
+
+  const recordAnswer = useCallback(
+    (entry: { question: string; category: string; answer: string; score: number }) => {
+      const habits = analyzeVocalHabits(entry.answer);
+      const record: AnswerRecord = {
+        at: new Date().toISOString(),
+        question: entry.question,
+        category: entry.category,
+        mode,
+        score: entry.score,
+        words: wordsIn(entry.answer),
+        fillers: habits?.totalFillers ?? 0,
+        confidence: null,
+      };
+      appendRecords([record]);
+    },
+    [mode],
+  );
+
+  const noteConfidence = useCallback((value: number) => {
+    setConfidence(value);
+    const progress = loadProgress();
+    const last = progress.records[progress.records.length - 1];
+    if (last) {
+      last.confidence = value;
+      saveProgress(progress);
+    }
+  }, []);
 
   const advance = useCallback(() => {
     setFeedback(null);
@@ -114,11 +185,44 @@ function Practice() {
   }, [pool, mode, question.id, categoryScores]);
 
   const submit = useCallback(async () => {
+    const given = answer.trim();
+
     if (isMock) {
-      setTranscript((previous) => [
-        ...previous,
-        { question: activeQuestion, answer: answer.trim() },
-      ]);
+      const nextTranscript: TranscriptEntry[] = [
+        ...transcript,
+        { question: activeQuestion, answer: given, isFollowUp },
+      ];
+      setTranscript(nextTranscript);
+
+      const baseAnswers = nextTranscript.filter((entry) => !entry.isFollowUp).length;
+      const shouldPush = !isFollowUp && wordsIn(given) >= 30 && baseAnswers < sessionTotal;
+
+      if (shouldPush) {
+        // A real panel pushes back on the spot — pull one live follow-up.
+        setPending(true);
+        setError(null);
+        try {
+          const result = await requestFollowUps({
+            data: {
+              question: activeQuestion,
+              answer: given,
+              ...(brief ? { jobBrief: brief } : {}),
+              ...(resume ? { resume } : {}),
+            },
+          });
+          const next = result.followUps[0]?.question;
+          if (next) {
+            setAnswer("");
+            setFollowUpQuestion(next);
+            setPending(false);
+            return;
+          }
+        } catch {
+          /* the mock keeps moving even if the follow-up can't be generated */
+        }
+        setPending(false);
+      }
+
       advance();
       return;
     }
@@ -129,7 +233,8 @@ function Practice() {
       const result = await requestFeedback({
         data: {
           question: activeQuestion,
-          answer: answer.trim(),
+          answer: given,
+          tone,
           ...(brief ? { jobBrief: brief } : {}),
           ...(resume ? { resume } : {}),
         },
@@ -140,12 +245,33 @@ function Practice() {
         ...previous,
         [question.category]: [...(previous[question.category] ?? []), result.score],
       }));
+      recordAnswer({
+        question: activeQuestion,
+        category: question.category,
+        answer: given,
+        score: result.score,
+      });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Something went wrong. Please try again.");
     } finally {
       setPending(false);
     }
-  }, [answer, brief, resume, activeQuestion, requestFeedback, isMock, advance, question.category]);
+  }, [
+    answer,
+    brief,
+    resume,
+    activeQuestion,
+    requestFeedback,
+    requestFollowUps,
+    isMock,
+    isFollowUp,
+    transcript,
+    sessionTotal,
+    advance,
+    question.category,
+    recordAnswer,
+    tone,
+  ]);
 
   const retry = useCallback(() => {
     setFeedback(null);
@@ -163,8 +289,8 @@ function Practice() {
 
   // Grade the whole mock interview once every question is answered.
   const gradedRef = useRef(false);
-  const gradingContextRef = useRef({ transcript, brief, resume, requestFeedback });
-  gradingContextRef.current = { transcript, brief, resume, requestFeedback };
+  const gradingContextRef = useRef({ transcript, brief, resume, requestFeedback, tone });
+  gradingContextRef.current = { transcript, brief, resume, requestFeedback, tone };
 
   useEffect(() => {
     if (!isMock || !finished || gradedRef.current) return;
@@ -174,12 +300,14 @@ function Practice() {
     void (async () => {
       const context = gradingContextRef.current;
       const collected: MockResult[] = [];
+      const records: AnswerRecord[] = [];
       for (const entry of context.transcript) {
         try {
           const result = await context.requestFeedback({
             data: {
               question: entry.question,
               answer: entry.answer,
+              tone: context.tone,
               ...(context.brief ? { jobBrief: context.brief } : {}),
               ...(context.resume ? { resume: context.resume } : {}),
             },
@@ -191,15 +319,26 @@ function Practice() {
             praise: result.praise,
             improvement: result.improvement,
           });
+          records.push({
+            at: new Date().toISOString(),
+            question: entry.question,
+            category: entry.isFollowUp ? "Follow-up" : question.category,
+            mode: "mock",
+            score: result.score,
+            words: wordsIn(entry.answer),
+            fillers: analyzeVocalHabits(entry.answer)?.totalFillers ?? 0,
+            confidence: null,
+          });
         } catch (caught) {
           setError(caught instanceof Error ? caught.message : "Some answers couldn't be scored.");
         }
         setMockResults([...collected]);
       }
+      if (records.length) appendRecords(records);
       setGrading(false);
     })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isMock, finished]);
-
 
   const restartMock = useCallback(() => {
     gradedRef.current = false;
@@ -209,13 +348,22 @@ function Practice() {
     setAskedIds([]);
     setAnswer("");
     setError(null);
+    setFollowUpQuestion(null);
     setQuestionId(pickNext(pool, mode, [], null, {}));
   }, [pool, mode]);
+
+  const voiceControls = {
+    muted: voice.muted,
+    speaking: voice.speaking,
+    loading: voice.loading,
+    onReplay: () => void voice.speak(activeQuestion),
+    onToggleMute: voice.toggleMute,
+  };
 
   if (isMock && finished) {
     return (
       <div className="min-h-screen bg-background">
-        <SessionProgress answered={transcript.length} total={sessionTotal} averageScore={null} />
+        <SessionProgress answered={answeredCount} total={sessionTotal} averageScore={null} />
         <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
           <MockRecap
             results={mockResults}
@@ -241,14 +389,14 @@ function Practice() {
             </h1>
             <p className="mx-auto mt-3 max-w-md text-muted-foreground">
               You answered {scores.length} question{scores.length === 1 ? "" : "s"} with an average
-              score of {averageScore?.toFixed(1)}/10.
+              score of {averageScore?.toFixed(1)}/10. It's saved to your progress on this device.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <Button asChild size="lg" className="rounded-full px-7">
                 <Link to="/">Back to start</Link>
               </Button>
               <Button asChild variant="secondary" size="lg" className="rounded-full px-7">
-                <Link to="/practice" search={{ mode, count, cats }}>
+                <Link to="/practice" search={{ mode, count, cats, tone }}>
                   <RotateCcw className="size-4" aria-hidden />
                   Start another round
                 </Link>
@@ -276,9 +424,15 @@ function Practice() {
               {formatClock(elapsed)}
             </span>
             <span className="text-muted-foreground">
-              Mock interview — no feedback until the end. Answer and move on.
+              Mock interview — expect follow-ups, and no feedback until the end.
             </span>
           </div>
+        ) : null}
+
+        {tone === "tough" ? (
+          <p className="mb-6 text-center text-sm text-muted-foreground">
+            Tough panelist mode: strict scoring, blunt critique.
+          </p>
         ) : null}
 
         <QuestionCard
@@ -287,15 +441,24 @@ function Practice() {
           index={answeredCount + 1}
           total={sessionTotal}
           isFollowUp={isFollowUp}
+          {...(voice.ready ? { voice: voiceControls } : {})}
         />
+
+        {voice.error ? (
+          <p className="mt-3 text-center text-sm text-warm-foreground">{voice.error}</p>
+        ) : null}
 
         <div className="mt-8">
           {pending ? (
             <div className="animate-rise flex flex-col items-center gap-3 rounded-3xl border border-border bg-card p-12 text-center shadow-sm">
               <Loader2 className="size-6 animate-spin text-primary" aria-hidden />
-              <p className="font-medium text-foreground">Reading your answer closely…</p>
+              <p className="font-medium text-foreground">
+                {isMock ? "The panel is thinking…" : "Reading your answer closely…"}
+              </p>
               <p className="text-sm text-muted-foreground">
-                Looking for what you did well before anything else.
+                {isMock
+                  ? "They may push back on what you just said."
+                  : "Looking for what you did well before anything else."}
               </p>
             </div>
           ) : feedback ? (
@@ -306,7 +469,11 @@ function Practice() {
               jobBrief={brief}
               resume={resume}
               confidence={confidence}
-              onConfidence={setConfidence}
+              tone={tone}
+              {...(seededHistory && historyFillerRate != null
+                ? { previousFillerRate: historyFillerRate, previousFillerLabel: "your history" }
+                : {})}
+              onConfidence={noteConfidence}
               onRetry={retry}
               onNext={advance}
               onPracticeFollowUp={practiceFollowUp}

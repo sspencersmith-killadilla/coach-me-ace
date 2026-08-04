@@ -1,11 +1,21 @@
-import { AudioLines } from "lucide-react";
+import { AudioLines, TrendingDown, TrendingUp } from "lucide-react";
 import { analyzeVocalHabits, formatSpokenLength } from "@/lib/answer-habits";
 
-type Props = { answer: string };
+type Props = {
+  answer: string;
+  /** Filler-word rate (%) across earlier answers, so progress is visible. */
+  previousFillerRate?: number | null;
+  previousLabel?: string;
+};
 
-export function VocalHabitsCard({ answer }: Props) {
+export function VocalHabitsCard({ answer, previousFillerRate, previousLabel }: Props) {
   const habits = analyzeVocalHabits(answer);
   if (!habits) return null;
+
+  const delta =
+    previousFillerRate != null ? habits.fillerRate - previousFillerRate : null;
+  const improving = delta != null && delta < -0.2;
+  const slipping = delta != null && delta > 0.2;
 
   return (
     <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
@@ -37,6 +47,25 @@ export function VocalHabitsCard({ answer }: Props) {
             </li>
           ))}
         </ul>
+      ) : null}
+
+      {delta != null ? (
+        <p
+          className={`mt-3 flex items-center gap-2 text-sm ${
+            improving ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          {improving ? (
+            <TrendingDown className="size-4" aria-hidden />
+          ) : (
+            <TrendingUp className="size-4" aria-hidden />
+          )}
+          {improving
+            ? `Fewer fillers than ${previousLabel ?? "your earlier answers"} — ${habits.fillerRate.toFixed(1)}% now vs ${previousFillerRate?.toFixed(1)}% before.`
+            : slipping
+              ? `A few more fillers than ${previousLabel ?? "your earlier answers"} — ${habits.fillerRate.toFixed(1)}% vs ${previousFillerRate?.toFixed(1)}%. Worth a slower start on the next one.`
+              : `Holding steady at about ${habits.fillerRate.toFixed(1)}% fillers, same as ${previousLabel ?? "before"}.`}
+        </p>
       ) : null}
 
       <p className="mt-4 leading-relaxed text-muted-foreground">{habits.tip}</p>

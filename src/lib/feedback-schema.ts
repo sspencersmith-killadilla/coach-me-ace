@@ -7,7 +7,9 @@ export const FeedbackInput = z.object({
   answer: z.string().min(1),
   jobBrief: JobBriefSchema.optional(),
   resume: ResumeSchema.optional(),
+  tone: z.enum(["warm", "tough"]).optional(),
 });
+
 
 export const FeedbackSchema = z.object({
   score: z.number(),
@@ -39,3 +41,13 @@ export const RESUME_CONTEXT_PROMPT = `You also have the candidate's resume below
 - suggestedExperience: one concise sentence recommending which past role or project the candidate should draw from for this question.
 - resumeGap: if a job brief is also provided, identify the single biggest gap between the candidate's background and the role's requirements, and suggest one way to bridge it in the answer. If no job brief is provided, omit this field.
 - The starAnswer should weave in real details from the resume when relevant, but never invent specifics that aren't in the resume. Keep the answer sounding like the candidate, not a polished template.`;
+
+export const TOUGH_TONE_PROMPT = `Override the warm delivery. Role-play a cold, unimpressed senior panelist: the kind of interviewer who has heard four versions of this answer today and is not charmed. Same rubric, same honesty, tougher delivery.
+- Score strictly. A merely competent answer is a 5 or 6; reserve 8+ for answers that would genuinely stand out in a strong candidate pool.
+- praise: state plainly what actually worked, without gushing. No "love this", no exclamation marks.
+- improvement: be blunt about the weakest part and say exactly what a panel would push back on. Do not soften it with compliments.
+- Never insult the person, mock them, or be sarcastic — critique the answer, not the candidate.
+- The model answer stays human and in the candidate's voice; it just needs to be sharp enough to survive a skeptical room.`;
+
+export const SENIORITY_PROMPT = (level: string) =>
+  `Calibrate to the candidate's apparent seniority: ${level}. Judge the answer against what an interviewer would expect from someone at that level — scope of ownership, ambiguity handled, people and stakeholders involved, and business impact. Do not expect executive-scale results from an early-career candidate, and do not accept individual-task stories from a senior or executive candidate without pushing for scope. The model answer should sit at that same altitude.`;

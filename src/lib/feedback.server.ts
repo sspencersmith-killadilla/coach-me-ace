@@ -6,11 +6,13 @@ import {
   FeedbackSchema,
   JOB_CONTEXT_PROMPT,
   RESUME_CONTEXT_PROMPT,
+  SENIORITY_PROMPT,
+  TOUGH_TONE_PROMPT,
   type FeedbackInput,
   type InterviewFeedback,
 } from "./feedback-schema";
 import { describeJobBrief } from "./job-brief";
-import { describeResume } from "./resume";
+import { describeResume, inferSeniority } from "./resume";
 
 type Input = z.infer<typeof FeedbackInput>;
 
@@ -28,8 +30,13 @@ export async function generateInterviewFeedback(data: Input): Promise<InterviewF
   if (data.resume) {
     sections.push(RESUME_CONTEXT_PROMPT);
     sections.push(describeResume(data.resume));
+    sections.push(SENIORITY_PROMPT(inferSeniority(data.resume)));
+  }
+  if (data.tone === "tough") {
+    sections.push(TOUGH_TONE_PROMPT);
   }
   const system = sections.join("\n\n");
+
 
   try {
     const result = streamText({

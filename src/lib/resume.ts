@@ -41,3 +41,31 @@ export function describeResume(resume: Resume) {
     `Education: ${resume.education.join("; ")}`,
   ].join("\n\n");
 }
+
+const EXECUTIVE = /\b(chief|c[etoif]o|cto|cfo|coo|ciso|president|partner|vp|vice president|svp|evp|executive director)\b/i;
+const SENIOR_LEAD = /\b(head of|director|principal|staff|senior manager|department manager|general manager)\b/i;
+const MANAGER = /\b(manager|lead|supervisor|team lead|coordinator ii)\b/i;
+const SENIOR_IC = /\b(senior|sr\.?|lead specialist|architect)\b/i;
+const EARLY = /\b(intern|junior|jr\.?|associate|assistant|trainee|graduate|entry)\b/i;
+
+export type Seniority =
+  | "early career"
+  | "mid-level individual contributor"
+  | "senior individual contributor"
+  | "manager or team lead"
+  | "senior leader"
+  | "executive";
+
+/** Rough seniority read from titles and depth of experience, used to calibrate coaching. */
+export function inferSeniority(resume: Resume): Seniority {
+  const titles = resume.experience.map((role) => role.title).join(" | ");
+  const haystack = `${titles} ${resume.summary}`;
+
+  if (EXECUTIVE.test(titles)) return "executive";
+  if (SENIOR_LEAD.test(titles)) return "senior leader";
+  if (MANAGER.test(titles)) return "manager or team lead";
+  if (SENIOR_IC.test(titles)) return "senior individual contributor";
+  if (EARLY.test(haystack) && resume.experience.length <= 2) return "early career";
+  if (resume.experience.length <= 1) return "early career";
+  return "mid-level individual contributor";
+}
