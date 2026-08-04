@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useMemo, useState } from "react";
-import { AlertCircle, Loader2 } from "lucide-react";
+import { AlertCircle, Loader2, RotateCcw } from "lucide-react";
 import { AnswerComposer } from "@/components/interview/AnswerComposer";
 import { FeedbackCard } from "@/components/interview/FeedbackCard";
 import { QuestionCard } from "@/components/interview/QuestionCard";
@@ -9,14 +9,20 @@ import { SessionProgress } from "@/components/interview/SessionProgress";
 import { Button } from "@/components/ui/button";
 import { QUESTIONS, QUESTION_COUNT } from "@/data/questions";
 import { useJobBrief } from "@/lib/job-brief-context";
+import { useResume } from "@/lib/resume-context";
 import { getInterviewFeedback, type InterviewFeedback } from "@/lib/feedback.functions";
 
 type Mode = "random" | "sequential";
 
+const SESSION_OPTIONS = [5, 10, 20, QUESTION_COUNT];
+
 export const Route = createFileRoute("/practice")({
-  validateSearch: (search: Record<string, unknown>): { mode: Mode } => ({
-    mode: search["mode"] === "sequential" ? "sequential" : "random",
-  }),
+  validateSearch: (search: Record<string, unknown>): { mode: Mode; count: number } => {
+    const mode = search["mode"] === "sequential" ? "sequential" : "random";
+    const rawCount = Number(search["count"]);
+    const count = SESSION_OPTIONS.includes(rawCount) ? rawCount : QUESTION_COUNT;
+    return { mode, count };
+  },
   head: () => ({
     meta: [
       { title: "Practice Session — Mock Interview Coach" },
@@ -48,10 +54,10 @@ function pickRandomIndex(exclude: number | null) {
 }
 
 function Practice() {
-  const { mode } = Route.useSearch();
+  const { mode, count } = Route.useSearch();
   const requestFeedback = useServerFn(getInterviewFeedback);
   const { brief } = useJobBrief();
-
+  const { resume } = useResume();
 
   const [index, setIndex] = useState(() => (mode === "random" ? pickRandomIndex(null) : 0));
   const [answer, setAnswer] = useState("");
@@ -65,13 +71,19 @@ function Practice() {
     () => (scores.length ? scores.reduce((sum, value) => sum + value, 0) / scores.length : null),
     [scores],
   );
+  const finished = scores.length >= count;
 
   const submit = useCallback(async () => {
     setPending(true);
     setError(null);
     try {
       const result = await requestFeedback({
-        data: { question: question.text, answer: answer.trim(), ...(brief ? { jobBrief: brief } : {}) },
+        data: {
+          question: question.text,
+          answer: answer.trim(),
+          ...(brief ? { jobBrief: brief } : {}),
+          ...(resume ? { resume } : {}),
+        },
       });
       setFeedback(result);
       setScores((previous) => [...previous, result.score]);
@@ -80,7 +92,7 @@ function Practice() {
     } finally {
       setPending(false);
     }
-  }, [answer, brief, question.text, requestFeedback]);
+  }, [answer, brief, resume, question.text, requestFeedback]);
 
   const nextQuestion = useCallback(() => {
     setFeedback(null);
@@ -96,9 +108,39 @@ function Practice() {
     setError(null);
   }, []);
 
+  if (finished) {
+    return (
+      <div className="min-h-screen bg-background">
+        <SessionProgress answered={scores.length} total={count} averageScore={averageScore} />
+        <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
+          <div className="animate-rise rounded-3xl border border-border bg-card p-8 text-center shadow-sm">
+            <h1 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
+              Session complete
+            </h1>
+            <p className="mx-auto mt-3 max-w-md text-muted-foreground">
+              You answered {scores.length} question{scores.length === 1 ? "" : "s"} with an average
+              score of {averageScore?.toFixed(1)}/10.
+            </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-3">
+              <Button asChild size="lg" className="rounded-full px-7">
+                <Link to="/">Back to start</Link>
+              </Button>
+              <Button asChild variant="secondary" size="lg" className="rounded-full px-7">
+                <Link to="/practice" search={{ mode, count }}>
+                  <RotateCcw className="size-4" aria-hidden />
+                  Start another round
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <SessionProgress answered={scores.length} averageScore={averageScore} />
+      <SessionProgress answered={scores.length} total={count} averageScore={averageScore} />
 
       <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
         <QuestionCard
