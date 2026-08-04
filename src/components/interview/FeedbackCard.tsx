@@ -1,11 +1,19 @@
 import { ArrowRight, Briefcase, FileUser, Heart, Lightbulb, RotateCcw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { FollowUpCard } from "./FollowUpCard";
 import type { InterviewFeedback } from "@/lib/feedback.functions";
+import type { JobBrief } from "@/lib/job-brief";
+import type { Resume } from "@/lib/resume";
 
 type Props = {
   feedback: InterviewFeedback;
+  question: string;
+  answer: string;
+  jobBrief: JobBrief | null;
+  resume: Resume | null;
   onRetry: () => void;
   onNext: () => void;
+  onPracticeFollowUp: (followUpQuestion: string) => void;
 };
 
 function encouragement(score: number) {
