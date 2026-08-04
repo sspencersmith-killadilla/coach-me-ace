@@ -1,4 +1,4 @@
-import { ArrowRight, Heart, Lightbulb, RotateCcw, Star } from "lucide-react";
+import { ArrowRight, Briefcase, Heart, Lightbulb, RotateCcw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { InterviewFeedback } from "@/lib/feedback.functions";
 
@@ -43,6 +43,16 @@ export function FeedbackCard({ feedback, onRetry, onNext }: Props) {
         </h3>
         <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.improvement}</p>
       </section>
+
+      {feedback.jobFit ? (
+        <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <Briefcase className="size-5 text-primary" aria-hidden />
+            How this lands for the role
+          </h3>
+          <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.jobFit}</p>
+        </section>
+      ) : null}
 
       <section className="rounded-3xl border border-border bg-secondary p-6">
         <h3 className="flex items-center gap-2 text-lg font-semibold text-secondary-foreground">
