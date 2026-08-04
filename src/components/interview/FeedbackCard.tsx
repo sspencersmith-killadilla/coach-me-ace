@@ -101,6 +101,14 @@ export function FeedbackCard({
         </p>
       </section>
 
+      <FollowUpCard
+        question={question}
+        answer={answer}
+        jobBrief={jobBrief}
+        resume={resume}
+        onPracticeFollowUp={onPracticeFollowUp}
+      />
+
       <div className="flex flex-wrap gap-3 pt-1">
         <Button onClick={onNext} size="lg" className="rounded-full">
           Next question
