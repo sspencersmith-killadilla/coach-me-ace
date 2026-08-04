@@ -34,8 +34,8 @@ const highlights = [
   },
   {
     icon: Mic,
-    title: "Type it or say it",
-    body: "Practice out loud with speech-to-text, just like you would in the room, or write your answer at your own pace.",
+    title: "Speak your answers",
+    body: "Answer out loud like you would in the room — your words are transcribed accurately and dropped straight into the box.",
   },
   {
     icon: Heart,
@@ -74,6 +74,7 @@ function Welcome() {
             </Button>
           </div>
         </div>
+        <JobPostingUpload />
 
         <div className="mt-16 grid gap-4 sm:grid-cols-3">
           {highlights.map(({ icon: Icon, title, body }) => (
