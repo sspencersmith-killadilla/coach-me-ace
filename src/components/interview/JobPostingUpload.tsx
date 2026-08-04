@@ -183,7 +183,7 @@ export function JobPostingUpload() {
           onClick={() => setOpen(true)}
         >
           <Briefcase className="size-4" aria-hidden />
-          Add the job you're going for (optional)
+          Upload the recruitment brochure for more customized feedback (optional)
         </Button>
       </div>
     );
