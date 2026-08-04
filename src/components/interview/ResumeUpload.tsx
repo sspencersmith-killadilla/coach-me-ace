@@ -87,9 +87,7 @@ export function ResumeUpload() {
     [onFile],
   );
 
-  if (!hydrated) return null;
-
-  if (resume && !draft) {
+  if (hydrated && resume && !draft) {
     return (
       <div className="animate-rise mt-6 rounded-3xl border border-border bg-card p-6 text-left shadow-sm">
         <div className="flex items-start gap-3">

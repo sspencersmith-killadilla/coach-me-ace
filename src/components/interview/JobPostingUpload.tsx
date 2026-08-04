@@ -87,9 +87,7 @@ export function JobPostingUpload() {
     [onFile],
   );
 
-  if (!hydrated) return null;
-
-  if (brief && !draft) {
+  if (hydrated && brief && !draft) {
     return (
       <div className="animate-rise mt-10 rounded-3xl border border-border bg-card p-6 text-left shadow-sm">
         <div className="flex items-start gap-3">
