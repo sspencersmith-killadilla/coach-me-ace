@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Heart, MessageCircleQuestion, Mic, Sparkles } from "lucide-react";
+import { Heart, MessageCircleQuestion, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { JobPostingUpload } from "@/components/interview/JobPostingUpload";
 import { QUESTION_COUNT } from "@/data/questions";
@@ -50,7 +50,7 @@ function Welcome() {
       <div className="mx-auto max-w-3xl px-4 py-20 sm:py-28">
         <div className="animate-rise text-center">
           <span className="inline-flex items-center gap-2 rounded-full bg-warm px-4 py-1.5 text-sm font-medium text-warm-foreground">
-            <Sparkles className="size-4" aria-hidden />
+            <img src="/logo-mark.png" alt="" className="size-5" width={20} height={20} />
             Take a breath. You've got this.
           </span>
           <h1 className="mt-6 text-balance font-display text-4xl leading-tight font-semibold text-foreground sm:text-5xl">
