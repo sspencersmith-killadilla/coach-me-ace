@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { JobBriefProvider } from "../lib/job-brief-context";
+import { ResumeProvider } from "../lib/resume-context";
 
 function NotFoundComponent() {
   return (
@@ -127,8 +128,10 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <JobBriefProvider>
-        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-        <Outlet />
+        <ResumeProvider>
+          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+          <Outlet />
+        </ResumeProvider>
       </JobBriefProvider>
     </QueryClientProvider>
   );

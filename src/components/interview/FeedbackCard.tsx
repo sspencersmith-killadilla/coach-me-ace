@@ -1,4 +1,4 @@
-import { ArrowRight, Briefcase, Heart, Lightbulb, RotateCcw, Star } from "lucide-react";
+import { ArrowRight, Briefcase, FileUser, Heart, Lightbulb, RotateCcw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { InterviewFeedback } from "@/lib/feedback.functions";
 
@@ -44,6 +44,16 @@ export function FeedbackCard({ feedback, onRetry, onNext }: Props) {
         <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.improvement}</p>
       </section>
 
+      {feedback.suggestedExperience ? (
+        <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <FileUser className="size-5 text-primary" aria-hidden />
+            Experience to draw from
+          </h3>
+          <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.suggestedExperience}</p>
+        </section>
+      ) : null}
+
       {feedback.jobFit ? (
         <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
@@ -51,6 +61,16 @@ export function FeedbackCard({ feedback, onRetry, onNext }: Props) {
             How this lands for the role
           </h3>
           <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.jobFit}</p>
+        </section>
+      ) : null}
+
+      {feedback.resumeGap ? (
+        <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <Lightbulb className="size-5 text-accent" aria-hidden />
+            Bridge this gap
+          </h3>
+          <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.resumeGap}</p>
         </section>
       ) : null}
 

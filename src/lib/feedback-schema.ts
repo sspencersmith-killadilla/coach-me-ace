@@ -1,10 +1,12 @@
 import { z } from "zod";
 import { JobBriefSchema } from "./job-brief";
+import { ResumeSchema } from "./resume";
 
 export const FeedbackInput = z.object({
   question: z.string().min(1),
   answer: z.string().min(1),
   jobBrief: JobBriefSchema.optional(),
+  resume: ResumeSchema.optional(),
 });
 
 export const FeedbackSchema = z.object({
@@ -13,6 +15,8 @@ export const FeedbackSchema = z.object({
   improvement: z.string(),
   starAnswer: z.string(),
   jobFit: z.string().optional(),
+  suggestedExperience: z.string().optional(),
+  resumeGap: z.string().optional(),
 });
 
 export type InterviewFeedback = z.infer<typeof FeedbackSchema>;
@@ -31,3 +35,7 @@ Return: score (integer 1-10), praise (2-3 sentences of specific, genuine praise)
 
 export const JOB_CONTEXT_PROMPT = `The candidate is preparing for one specific role, described below. Coach against that role explicitly: let the praise name the skills and responsibilities the posting asks for, let the improvement point at the clearest gap between the answer and what this posting wants, and shape the model answer around what this role actually cares about — while keeping it conversational and in the candidate's own voice, never a polished template. Also return jobFit: one or two sentences on how well this answer speaks to this particular job.`;
 
+export const RESUME_CONTEXT_PROMPT = `You also have the candidate's resume below. Use it to make the coaching concrete:
+- suggestedExperience: one concise sentence recommending which past role or project the candidate should draw from for this question.
+- resumeGap: if a job brief is also provided, identify the single biggest gap between the candidate's background and the role's requirements, and suggest one way to bridge it in the answer. If no job brief is provided, omit this field.
+- The starAnswer should weave in real details from the resume when relevant, but never invent specifics that aren't in the resume. Keep the answer sounding like the candidate, not a polished template.`;

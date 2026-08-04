@@ -6,5 +6,5 @@ import type { InterviewFeedback } from "./feedback-schema";
 export type { InterviewFeedback };
 
 export const getInterviewFeedback = createServerFn({ method: "POST" })
-  .inputValidator((input: unknown) => FeedbackInput.parse(input))
+  .validator((input: unknown) => FeedbackInput.parse(input))
   .handler(async ({ data }): Promise<InterviewFeedback> => generateInterviewFeedback(data));
