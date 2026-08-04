@@ -30,6 +30,7 @@ export function JobPostingUpload() {
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [draft, setDraft] = useState<JobBrief | null>(null);
+  const [dragActive, setDragActive] = useState(false);
 
   const runParse = useCallback(
     async (payload: { text?: string; fileDataUrl?: string; fileName?: string; mimeType?: string }) => {
