@@ -23,7 +23,16 @@ function encouragement(score: number) {
   return "Great first pass — every rep makes this easier.";
 }
 
-export function FeedbackCard({ feedback, onRetry, onNext }: Props) {
+export function FeedbackCard({
+  feedback,
+  question,
+  answer,
+  jobBrief,
+  resume,
+  onRetry,
+  onNext,
+  onPracticeFollowUp,
+}: Props) {
   return (
     <div className="animate-rise space-y-4">
       <div className="flex flex-col items-center gap-3 rounded-3xl border border-border bg-warm p-6 text-center">
