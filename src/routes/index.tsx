@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, MessageCircleQuestion, Mic, Target, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { JobPostingUpload } from "@/components/interview/JobPostingUpload";
+import { PreInterviewBriefing } from "@/components/interview/PreInterviewBriefing";
 import { ProgressCard } from "@/components/interview/ProgressCard";
 import { ResumeUpload } from "@/components/interview/ResumeUpload";
 import { CATEGORIES, QUESTIONS, QUESTION_COUNT } from "@/data/questions";
@@ -223,6 +224,7 @@ function Welcome() {
 
         <JobPostingUpload />
         <ResumeUpload />
+        <PreInterviewBriefing practiceSearch={{ mode: "random", count, cats, tone }} />
 
         <div className="mt-16 grid gap-4 sm:grid-cols-3">
           {highlights.map(({ icon: Icon, title, body }) => (
