@@ -25,6 +25,7 @@ export function JobPostingUpload() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<"file" | "text">("file");
   const [text, setText] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
