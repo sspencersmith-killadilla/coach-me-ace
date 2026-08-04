@@ -2,7 +2,9 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, MessageCircleQuestion, Mic } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { JobPostingUpload } from "@/components/interview/JobPostingUpload";
+import { ResumeUpload } from "@/components/interview/ResumeUpload";
 import { QUESTION_COUNT } from "@/data/questions";
+import { useState } from "react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,6 +28,13 @@ export const Route = createFileRoute("/")({
   component: Welcome,
 });
 
+const SESSION_OPTIONS = [
+  { label: "5 questions", value: 5 },
+  { label: "10 questions", value: 10 },
+  { label: "20 questions", value: 20 },
+  { label: "All 136", value: QUESTION_COUNT },
+];
+
 const highlights = [
   {
     icon: MessageCircleQuestion,
@@ -45,6 +54,8 @@ const highlights = [
 ];
 
 function Welcome() {
+  const [count, setCount] = useState(QUESTION_COUNT);
+
   return (
     <main className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-20 sm:py-28">
@@ -63,18 +74,40 @@ function Welcome() {
 
           <div className="mt-9 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "random" }}>
+              <Link to="/practice" search={{ mode: "random", count }}>
                 Start interview
               </Link>
             </Button>
             <Button asChild variant="secondary" size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "sequential" }}>
+              <Link to="/practice" search={{ mode: "sequential", count }}>
                 Go in order instead
               </Link>
             </Button>
           </div>
+
+          <div className="mx-auto mt-6 flex w-fit flex-col items-center gap-2 rounded-3xl border border-border bg-card p-4 shadow-sm sm:flex-row">
+            <span className="text-sm font-medium text-foreground">Session length:</span>
+            <div className="flex rounded-full bg-muted p-1">
+              {SESSION_OPTIONS.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setCount(option.value)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    count === option.value
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
+
         <JobPostingUpload />
+        <ResumeUpload />
 
         <div className="mt-16 grid gap-4 sm:grid-cols-3">
           {highlights.map(({ icon: Icon, title, body }) => (
