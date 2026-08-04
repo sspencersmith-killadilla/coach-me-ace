@@ -155,10 +155,11 @@ function Practice() {
 
       <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
         <QuestionCard
-          question={question.text}
+          question={activeQuestion}
           category={question.category}
           index={question.id}
           total={QUESTION_COUNT}
+          isFollowUp={isFollowUp}
         />
 
         <div className="mt-8">
@@ -171,7 +172,16 @@ function Practice() {
               </p>
             </div>
           ) : feedback ? (
-            <FeedbackCard feedback={feedback} onRetry={retry} onNext={nextQuestion} />
+            <FeedbackCard
+              feedback={feedback}
+              question={activeQuestion}
+              answer={answer}
+              jobBrief={brief}
+              resume={resume}
+              onRetry={retry}
+              onNext={nextQuestion}
+              onPracticeFollowUp={practiceFollowUp}
+            />
           ) : (
             <>
               {error ? (
