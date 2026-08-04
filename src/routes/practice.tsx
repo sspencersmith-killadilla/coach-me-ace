@@ -469,6 +469,7 @@ function Practice() {
               jobBrief={brief}
               resume={resume}
               confidence={confidence}
+              tone={tone}
               {...(seededHistory && historyFillerRate != null
                 ? { previousFillerRate: historyFillerRate, previousFillerLabel: "your history" }
                 : {})}
