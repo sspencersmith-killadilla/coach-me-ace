@@ -71,7 +71,7 @@ function Practice() {
     setError(null);
     try {
       const result = await requestFeedback({
-        data: { question: question.text, answer: answer.trim() },
+        data: { question: question.text, answer: answer.trim(), ...(brief ? { jobBrief: brief } : {}) },
       });
       setFeedback(result);
       setScores((previous) => [...previous, result.score]);
@@ -80,7 +80,7 @@ function Practice() {
     } finally {
       setPending(false);
     }
-  }, [answer, question.text, requestFeedback]);
+  }, [answer, brief, question.text, requestFeedback]);
 
   const nextQuestion = useCallback(() => {
     setFeedback(null);

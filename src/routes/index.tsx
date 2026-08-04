@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Heart, MessageCircleQuestion, Mic, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { JobPostingUpload } from "@/components/interview/JobPostingUpload";
 import { QUESTION_COUNT } from "@/data/questions";
 
 export const Route = createFileRoute("/")({
