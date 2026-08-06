@@ -54,11 +54,12 @@ export function PreInterviewBriefing({
   if (!ready) {
     return (
       <div className="mt-6 rounded-3xl border border-dashed border-border bg-muted/40 p-6 text-left">
-        <h2 className="text-base font-semibold text-foreground">Your fit for this role</h2>
+        <h2 className="text-base font-semibold text-foreground">
+          {isPromotion ? "Your readiness for the next level" : "Your fit for this role"}
+        </h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           Add {!brief && !resume ? "the job posting and your resume" : !brief ? "the job posting" : "your resume"} above
-          and we'll write you a short pre-interview briefing — how you fit, what to lean on, and where a panel will
-          press.
+          and we'll write you a short pre-interview briefing — {isPromotion ? "how ready you look for the promotion, what to lean on, and where the panel will press" : "how you fit, what to lean on, and where a panel will press"}.
         </p>
       </div>
     );
@@ -68,13 +69,21 @@ export function PreInterviewBriefing({
     return (
       <div className="animate-rise mt-6 rounded-3xl border border-border bg-card p-6 text-left shadow-sm">
         <div className="flex items-start gap-3">
-          <Sparkles className="mt-0.5 size-5 text-primary" aria-hidden />
+          {isPromotion ? (
+            <Award className="mt-0.5 size-5 text-primary" aria-hidden />
+          ) : (
+            <Sparkles className="mt-0.5 size-5 text-primary" aria-hidden />
+          )}
           <div className="flex-1">
-            <h2 className="text-base font-semibold text-foreground">Your fit for this role</h2>
+            <h2 className="text-base font-semibold text-foreground">
+              {isPromotion ? "Your readiness for the next level" : "Your fit for this role"}
+            </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {stale
-                ? "Your posting or resume changed — refresh the briefing so it matches."
-                : "Before you start, get a quick read on how your background lines up with this job and what you should watch out for."}
+                ? "Your posting, resume, or promotion details changed — refresh the briefing so it matches."
+                : isPromotion
+                  ? "Before you start, get a quick read on how ready you look for the promotion and where the panel will press hardest."
+                  : "Before you start, get a quick read on how your background lines up with this job and what you should watch out for."}
             </p>
           </div>
         </div>
@@ -87,7 +96,13 @@ export function PreInterviewBriefing({
         <div className="mt-4">
           <Button className="rounded-full" disabled={pending} onClick={() => void run()}>
             {pending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-            {pending ? "Reading your background…" : stale ? "Refresh my briefing" : "Get my pre-interview briefing"}
+            {pending
+              ? "Reading your background…"
+              : stale
+                ? "Refresh my briefing"
+                : isPromotion
+                  ? "Get my promotion briefing"
+                  : "Get my pre-interview briefing"}
           </Button>
         </div>
       </div>
