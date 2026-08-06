@@ -1,15 +1,24 @@
 import { QUESTIONS, type Question } from "@/data/questions";
 
-export type Mode = "random" | "sequential" | "weakest" | "mock";
+export type Mode = "random" | "sequential" | "weakest" | "mock" | "promotion";
+
+const PROMOTION_CATEGORIES = [
+  "Teamwork & Leadership",
+  "Accomplishments",
+  "Problem Solving",
+  "Career Goals",
+  "Skills & Work Style",
+];
 
 export function parseCategories(raw: string | undefined): string[] {
   if (!raw) return [];
   return raw.split(",").map((value) => value.trim()).filter(Boolean);
 }
 
-export function buildPool(categories: string[]): Question[] {
-  if (!categories.length) return QUESTIONS;
-  const filtered = QUESTIONS.filter((question) => categories.includes(question.category));
+export function buildPool(categories: string[], mode?: Mode): Question[] {
+  const effectiveCategories = mode === "promotion" && !categories.length ? PROMOTION_CATEGORIES : categories;
+  if (!effectiveCategories.length) return QUESTIONS;
+  const filtered = QUESTIONS.filter((question) => effectiveCategories.includes(question.category));
   return filtered.length ? filtered : QUESTIONS;
 }
 
