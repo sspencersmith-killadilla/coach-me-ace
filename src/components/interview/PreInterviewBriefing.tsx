@@ -113,14 +113,18 @@ export function PreInterviewBriefing({
     <div className="animate-rise mt-6 space-y-6 rounded-3xl border border-border bg-card p-6 text-left shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold text-foreground">Your fit for this role</h2>
+          <h2 className="text-base font-semibold text-foreground">
+            {isPromotion ? "Your readiness for the next level" : "Your fit for this role"}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {brief!.title} at {brief!.company}
+            {isPromotion && promotion.targetRole
+              ? `${promotion.targetRole}${brief ? ` at ${brief.company}` : ""}`
+              : `${brief!.title} at ${brief!.company}`}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <span className="rounded-full bg-warm px-3 py-1 text-sm font-semibold text-warm-foreground">
-            Fit {briefing.fitScore}/10
+            {isPromotion ? "Readiness" : "Fit"} {briefing.fitScore}/10
           </span>
           <button
             type="button"
@@ -137,7 +141,9 @@ export function PreInterviewBriefing({
       <p className="text-sm leading-relaxed text-foreground">{briefing.fitSummary}</p>
 
       <div>
-        <h3 className="text-sm font-semibold text-foreground">Your strongest cards</h3>
+        <h3 className="text-sm font-semibold text-foreground">
+          {isPromotion ? "Why you look ready" : "Your strongest cards"}
+        </h3>
         <ul className="mt-2 space-y-2">
           {briefing.strengths.map((item) => (
             <li key={item.point} className="flex items-start gap-2 text-sm leading-relaxed">
@@ -151,7 +157,9 @@ export function PreInterviewBriefing({
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-foreground">Watch out for</h3>
+        <h3 className="text-sm font-semibold text-foreground">
+          {isPromotion ? "Where the panel will press" : "Watch out for"}
+        </h3>
         <ul className="mt-2 space-y-2">
           {briefing.watchOuts.map((item) => (
             <li key={item.gap} className="flex items-start gap-2 text-sm leading-relaxed">
