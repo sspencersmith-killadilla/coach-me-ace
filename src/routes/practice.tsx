@@ -238,6 +238,7 @@ function Practice() {
               answer: given,
               ...(brief ? { jobBrief: brief } : {}),
               ...(resume ? { resume } : {}),
+              ...(promotion.isActive ? { promotion } : {}),
             },
           });
           const next = result.followUps[0]?.question;
@@ -267,6 +268,7 @@ function Practice() {
           tone,
           ...(brief ? { jobBrief: brief } : {}),
           ...(resume ? { resume } : {}),
+          ...(promotion.isActive ? { promotion } : {}),
         },
       });
       setFeedback(result);
@@ -290,6 +292,7 @@ function Practice() {
     answer,
     brief,
     resume,
+    promotion,
     activeQuestion,
     requestFeedback,
     requestFollowUps,
@@ -319,8 +322,8 @@ function Practice() {
 
   // Grade the whole mock interview once every question is answered.
   const gradedRef = useRef(false);
-  const gradingContextRef = useRef({ transcript, brief, resume, requestFeedback, tone });
-  gradingContextRef.current = { transcript, brief, resume, requestFeedback, tone };
+  const gradingContextRef = useRef({ transcript, brief, resume, promotion, requestFeedback, tone });
+  gradingContextRef.current = { transcript, brief, resume, promotion, requestFeedback, tone };
 
   useEffect(() => {
     if (!isMock || !finished || gradedRef.current) return;
@@ -340,6 +343,7 @@ function Practice() {
               tone: context.tone,
               ...(context.brief ? { jobBrief: context.brief } : {}),
               ...(context.resume ? { resume: context.resume } : {}),
+              ...(context.promotion.isActive ? { promotion: context.promotion } : {}),
             },
           });
           collected.push({
