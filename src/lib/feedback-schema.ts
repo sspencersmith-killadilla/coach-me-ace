@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { JobBriefSchema } from "./job-brief";
+import { PromotionSchema } from "./promotion";
 import { ResumeSchema } from "./resume";
 
 export const FeedbackInput = z.object({
@@ -7,6 +8,7 @@ export const FeedbackInput = z.object({
   answer: z.string().min(1),
   jobBrief: JobBriefSchema.optional(),
   resume: ResumeSchema.optional(),
+  promotion: PromotionSchema.optional(),
   tone: z.enum(["warm", "tough"]).optional(),
 });
 
@@ -19,6 +21,9 @@ export const FeedbackSchema = z.object({
   jobFit: z.string().optional(),
   suggestedExperience: z.string().optional(),
   resumeGap: z.string().optional(),
+  nextLevelReadiness: z.string().optional(),
+  internalEvidence: z.string().optional(),
+  promotionRisk: z.string().optional(),
 });
 
 export type InterviewFeedback = z.infer<typeof FeedbackSchema>;
