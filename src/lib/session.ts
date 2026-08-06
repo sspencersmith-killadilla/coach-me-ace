@@ -2,7 +2,7 @@ import { QUESTIONS, type Question } from "@/data/questions";
 
 export type Mode = "random" | "sequential" | "weakest" | "mock" | "promotion";
 
-const PROMOTION_CATEGORIES = [
+export const PROMOTION_CATEGORIES = [
   "Teamwork & Leadership",
   "Accomplishments",
   "Problem Solving",
