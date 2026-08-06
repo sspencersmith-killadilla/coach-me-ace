@@ -2,6 +2,7 @@ import { NoObjectGeneratedError, Output, streamText } from "ai";
 import type { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
 import { describeJobBrief } from "./job-brief";
+import { describePromotion } from "./promotion";
 import { describeResume } from "./resume";
 import { FOLLOW_UPS_SYSTEM_PROMPT, FollowUpsSchema, type FollowUps } from "./follow-ups-schema";
 
@@ -19,6 +20,9 @@ export async function generateFollowUps(data: Input): Promise<FollowUps> {
   }
   if (data.resume) {
     contextLines.push(describeResume(data.resume));
+  }
+  if (data.promotion?.isActive) {
+    contextLines.push(describePromotion(data.promotion));
   }
 
   const promptParts = [
