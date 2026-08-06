@@ -131,10 +131,12 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <JobBriefProvider>
         <ResumeProvider>
-          <BriefingProvider>
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-          </BriefingProvider>
+          <PromotionProvider>
+            <BriefingProvider>
+              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+              <Outlet />
+            </BriefingProvider>
+          </PromotionProvider>
         </ResumeProvider>
       </JobBriefProvider>
     </QueryClientProvider>

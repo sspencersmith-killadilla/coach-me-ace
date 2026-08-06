@@ -16,6 +16,7 @@ export function PreInterviewBriefing({
 }) {
   const { brief } = useJobBrief();
   const { resume } = useResume();
+  const { promotion } = usePromotion();
   const { briefing, signature, setBriefing, setQueuedQuestions, hydrated } = useBriefing();
   const request = useServerFn(getPreInterviewBriefing);
 
@@ -23,23 +24,27 @@ export function PreInterviewBriefing({
   const [error, setError] = useState<string | null>(null);
 
   const currentSignature = useMemo(
-    () => (brief && resume ? briefingSignature(brief, resume) : null),
-    [brief, resume],
+    () => (brief && resume ? briefingSignature({ brief, resume, promotion }) : null),
+    [brief, resume, promotion],
   );
+
+  const isPromotion = promotion.isActive;
 
   const run = useCallback(async () => {
     if (!brief || !resume) return;
     setPending(true);
     setError(null);
     try {
-      const result = await request({ data: { jobBrief: brief, resume } });
+      const result = await request({
+        data: { jobBrief: brief, resume, ...(isPromotion ? { promotion } : {}) },
+      });
       setBriefing(result, currentSignature ?? "");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Couldn't build your briefing.");
     } finally {
       setPending(false);
     }
-  }, [brief, resume, request, setBriefing, currentSignature]);
+  }, [brief, resume, request, setBriefing, currentSignature, promotion, isPromotion]);
 
   if (!hydrated) return null;
 
