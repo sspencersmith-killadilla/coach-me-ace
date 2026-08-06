@@ -28,10 +28,7 @@ Return: summary (2-4 sentences capturing the candidate's background and strength
 
 export function describeResume(resume: Resume) {
   const experienceText = resume.experience
-    .map(
-      (role) =>
-        `- ${role.title} at ${role.company}: ${role.highlights.join("; ")}`,
-    )
+    .map((role) => `- ${role.title} at ${role.company}: ${role.highlights.join("; ")}`)
     .join("\n");
 
   return [
@@ -42,8 +39,10 @@ export function describeResume(resume: Resume) {
   ].join("\n\n");
 }
 
-const EXECUTIVE = /\b(chief|c[etoif]o|cto|cfo|coo|ciso|president|partner|vp|vice president|svp|evp|executive director)\b/i;
-const SENIOR_LEAD = /\b(head of|director|principal|staff|senior manager|department manager|general manager)\b/i;
+const EXECUTIVE =
+  /\b(chief|c[etoif]o|cto|cfo|coo|ciso|president|partner|vp|vice president|svp|evp|executive director)\b/i;
+const SENIOR_LEAD =
+  /\b(head of|director|principal|staff|senior manager|department manager|general manager)\b/i;
 const MANAGER = /\b(manager|lead|supervisor|team lead|coordinator ii)\b/i;
 const SENIOR_IC = /\b(senior|sr\.?|lead specialist|architect)\b/i;
 const EARLY = /\b(intern|junior|jr\.?|associate|assistant|trainee|graduate|entry)\b/i;

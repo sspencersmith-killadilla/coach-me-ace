@@ -1,12 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  Download,
-  Loader2,
-  RotateCcw,
-  TrendingDown,
-  TrendingUp,
-  Upload,
-} from "lucide-react";
+import { Download, Loader2, RotateCcw, TrendingDown, TrendingUp, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   clearProgress,
@@ -39,12 +32,12 @@ export function ProgressCard() {
       const merged = mergeProgress(loadProgress(), imported);
       saveProgress(merged);
       setProgress(merged);
-      setStatus(`Loaded ${imported.records.length} past answers — you're picking up where you left off.`);
+      setStatus(
+        `Loaded ${imported.records.length} past answers — you're picking up where you left off.`,
+      );
     } catch (caught) {
       setError(
-        caught instanceof Error
-          ? caught.message
-          : "That doesn't look like a coach progress file.",
+        caught instanceof Error ? caught.message : "That doesn't look like a coach progress file.",
       );
     } finally {
       setBusy(false);

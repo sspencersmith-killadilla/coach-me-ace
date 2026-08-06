@@ -19,7 +19,10 @@ export function useAudioRecorder({ onSegment }: Options) {
 
   const contextRef = useRef<AudioContext | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
-  const nodesRef = useRef<{ source: MediaStreamAudioSourceNode; processor: ScriptProcessorNode } | null>(null);
+  const nodesRef = useRef<{
+    source: MediaStreamAudioSourceNode;
+    processor: ScriptProcessorNode;
+  } | null>(null);
   const chunksRef = useRef<Float32Array[]>([]);
   const framesRef = useRef(0);
   const producedRef = useRef(false);
@@ -72,7 +75,8 @@ export function useAudioRecorder({ onSegment }: Options) {
     }
 
     const AudioContextCtor =
-      window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      window.AudioContext ??
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
     const context = new AudioContextCtor();
     const source = context.createMediaStreamSource(stream);
     const processor = context.createScriptProcessor(4096, 1, 1);

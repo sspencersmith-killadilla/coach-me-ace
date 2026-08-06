@@ -43,7 +43,6 @@ export async function generateInterviewFeedback(data: Input): Promise<InterviewF
   }
   const system = sections.join("\n\n");
 
-
   try {
     const result = streamText({
       model: gateway("google/gemini-3.6-flash"),

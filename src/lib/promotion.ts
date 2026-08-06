@@ -22,7 +22,8 @@ export function describePromotion(promotion: Promotion) {
   if (promotion.currentRole) lines.push(`Current role: ${promotion.currentRole}`);
   if (promotion.targetRole) lines.push(`Target role / level: ${promotion.targetRole}`);
   if (promotion.companyContext) lines.push(`Company context: ${promotion.companyContext}`);
-  if (promotion.packetText) lines.push(`Promotion packet / business case:\n${promotion.packetText}`);
+  if (promotion.packetText)
+    lines.push(`Promotion packet / business case:\n${promotion.packetText}`);
   return lines.join("\n");
 }
 

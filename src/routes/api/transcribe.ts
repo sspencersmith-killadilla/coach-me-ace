@@ -24,7 +24,10 @@ export const Route = createFileRoute("/api/transcribe")({
           return Response.json({ error: "No audio was received." }, { status: 400 });
         }
         if (file.size > MAX_BYTES) {
-          return Response.json({ error: "That recording is too long to transcribe." }, { status: 413 });
+          return Response.json(
+            { error: "That recording is too long to transcribe." },
+            { status: 413 },
+          );
         }
         if (file.type && !ALLOWED_TYPES.includes(file.type)) {
           return Response.json({ error: "Unsupported audio format." }, { status: 400 });

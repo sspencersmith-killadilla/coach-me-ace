@@ -34,7 +34,12 @@ export function JobPostingUpload() {
   const [dragActive, setDragActive] = useState(false);
 
   const runParse = useCallback(
-    async (payload: { text?: string; fileDataUrl?: string; fileName?: string; mimeType?: string }) => {
+    async (payload: {
+      text?: string;
+      fileDataUrl?: string;
+      fileName?: string;
+      mimeType?: string;
+    }) => {
       setPending(true);
       setError(null);
       try {
@@ -97,12 +102,18 @@ export function JobPostingUpload() {
               Coaching for {brief.title} at {brief.company}
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-              Your feedback will be measured against this role: {brief.skills.slice(0, 5).join(", ")}.
+              Your feedback will be measured against this role:{" "}
+              {brief.skills.slice(0, 5).join(", ")}.
             </p>
           </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button variant="secondary" size="sm" className="rounded-full" onClick={() => setDraft(brief)}>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="rounded-full"
+            onClick={() => setDraft(brief)}
+          >
             <Pencil className="size-4" aria-hidden />
             Edit brief
           </Button>
@@ -156,7 +167,10 @@ export function JobPostingUpload() {
             rows={4}
             value={draft.responsibilities.join("\n")}
             onChange={(event) =>
-              setDraft({ ...draft, responsibilities: event.target.value.split("\n").filter(Boolean) })
+              setDraft({
+                ...draft,
+                responsibilities: event.target.value.split("\n").filter(Boolean),
+              })
             }
           />
         </label>
@@ -167,7 +181,9 @@ export function JobPostingUpload() {
             className="mt-1"
             rows={4}
             value={draft.skills.join("\n")}
-            onChange={(event) => setDraft({ ...draft, skills: event.target.value.split("\n").filter(Boolean) })}
+            onChange={(event) =>
+              setDraft({ ...draft, skills: event.target.value.split("\n").filter(Boolean) })
+            }
           />
         </label>
 
@@ -215,8 +231,8 @@ export function JobPostingUpload() {
       <div>
         <h2 className="text-base font-semibold text-foreground">Add the job you're going for</h2>
         <p className="mt-1 text-sm text-muted-foreground">
-          Upload the posting or brochure, or paste the text, so the coach can measure your answers against
-          the specific role.
+          Upload the posting or brochure, or paste the text, so the coach can measure your answers
+          against the specific role.
         </p>
       </div>
 
@@ -225,7 +241,9 @@ export function JobPostingUpload() {
           type="button"
           onClick={() => setMode("file")}
           className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-            mode === "file" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+            mode === "file"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Upload file
@@ -234,7 +252,9 @@ export function JobPostingUpload() {
           type="button"
           onClick={() => setMode("text")}
           className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-            mode === "text" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+            mode === "text"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Paste text

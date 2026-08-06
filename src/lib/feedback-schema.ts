@@ -12,7 +12,6 @@ export const FeedbackInput = z.object({
   tone: z.enum(["warm", "tough"]).optional(),
 });
 
-
 export const FeedbackSchema = z.object({
   score: z.number(),
   praise: z.string(),

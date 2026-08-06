@@ -23,7 +23,13 @@ import {
   type AnswerRecord,
 } from "@/lib/progress";
 import { useResume } from "@/lib/resume-context";
-import { buildPool, parseCategories, pickNext, PROMOTION_CATEGORIES, type Mode } from "@/lib/session";
+import {
+  buildPool,
+  parseCategories,
+  pickNext,
+  PROMOTION_CATEGORIES,
+  type Mode,
+} from "@/lib/session";
 import { getInterviewFeedback, type InterviewFeedback } from "@/lib/feedback.functions";
 import { getFollowUps } from "@/lib/follow-ups.functions";
 
@@ -89,20 +95,13 @@ function Practice() {
 
   const isPromotionMode = mode === "promotion";
   const pool = useMemo(
-    () =>
-      buildPool(
-        isPromotionMode
-          ? PROMOTION_CATEGORIES
-          : parseCategories(cats),
-      ),
+    () => buildPool(isPromotionMode ? PROMOTION_CATEGORIES : parseCategories(cats)),
     [cats, isPromotionMode],
   );
   const sessionTotal = Math.min(count, pool.length);
   const isMock = mode === "mock";
 
-  const [questionId, setQuestionId] = useState(
-    () => pickNext(pool, mode, [], null, {})!,
-  );
+  const [questionId, setQuestionId] = useState(() => pickNext(pool, mode, [], null, {})!);
   const [askedIds, setAskedIds] = useState<number[]>(() => []);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<InterviewFeedback | null>(null);
@@ -284,7 +283,9 @@ function Practice() {
         score: result.score,
       });
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Something went wrong. Please try again.");
+      setError(
+        caught instanceof Error ? caught.message : "Something went wrong. Please try again.",
+      );
     } finally {
       setPending(false);
     }
@@ -415,7 +416,11 @@ function Practice() {
   if (finished) {
     return (
       <div className="min-h-screen bg-background">
-        <SessionProgress answered={scores.length} total={sessionTotal} averageScore={averageScore} />
+        <SessionProgress
+          answered={scores.length}
+          total={sessionTotal}
+          averageScore={averageScore}
+        />
         <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
           <div className="animate-rise rounded-3xl border border-border bg-card p-8 text-center shadow-sm">
             <h1 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">

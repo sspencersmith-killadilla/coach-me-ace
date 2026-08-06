@@ -10,8 +10,6 @@ import { usePromotion } from "@/lib/promotion-context";
 import { CATEGORIES, QUESTIONS, QUESTION_COUNT } from "@/data/questions";
 import { useMemo, useState } from "react";
 
-
-
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -21,7 +19,10 @@ export const Route = createFileRoute("/")({
         content:
           "Practice 136 real interview questions by typing or speaking, and get warm, specific AI coaching with a STAR-method model answer.",
       },
-      { property: "og:title", content: "Mock Interview Coach — Practice with a Supportive AI Coach" },
+      {
+        property: "og:title",
+        content: "Mock Interview Coach — Practice with a Supportive AI Coach",
+      },
       {
         property: "og:description",
         content:
@@ -187,7 +188,6 @@ function Welcome() {
               : "Warm, encouraging feedback that leads with what worked."}
           </p>
 
-
           <div className="mt-6 rounded-3xl border border-border bg-card p-5 text-left shadow-sm">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 className="text-sm font-semibold text-foreground">
@@ -249,7 +249,6 @@ function Welcome() {
           Your answers never leave your browser — progress is stored on this device, and yours to
           export whenever you want.
         </p>
-
       </div>
     </main>
   );

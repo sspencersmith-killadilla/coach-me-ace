@@ -1,6 +1,14 @@
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertCircle, Award, CheckCircle2, Loader2, RefreshCw, Sparkles, TriangleAlert } from "lucide-react";
+import {
+  AlertCircle,
+  Award,
+  CheckCircle2,
+  Loader2,
+  RefreshCw,
+  Sparkles,
+  TriangleAlert,
+} from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { briefingSignature, useBriefing } from "@/lib/briefing-context";
@@ -58,8 +66,17 @@ export function PreInterviewBriefing({
           {isPromotion ? "Your readiness for the next level" : "Your fit for this role"}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Add {!brief && !resume ? "the job posting and your resume" : !brief ? "the job posting" : "your resume"} above
-          and we'll write you a short pre-interview briefing — {isPromotion ? "how ready you look for the promotion, what to lean on, and where the panel will press" : "how you fit, what to lean on, and where a panel will press"}.
+          Add{" "}
+          {!brief && !resume
+            ? "the job posting and your resume"
+            : !brief
+              ? "the job posting"
+              : "your resume"}{" "}
+          above and we'll write you a short pre-interview briefing —{" "}
+          {isPromotion
+            ? "how ready you look for the promotion, what to lean on, and where the panel will press"
+            : "how you fit, what to lean on, and where a panel will press"}
+          .
         </p>
       </div>
     );
@@ -176,7 +193,10 @@ export function PreInterviewBriefing({
         <h3 className="text-sm font-semibold text-foreground">Questions to expect</h3>
         <ul className="mt-2 space-y-2">
           {briefing.likelyQuestions.map((item) => (
-            <li key={item.question} className="rounded-2xl bg-muted/60 px-4 py-3 text-sm leading-relaxed">
+            <li
+              key={item.question}
+              className="rounded-2xl bg-muted/60 px-4 py-3 text-sm leading-relaxed"
+            >
               <p className="font-medium text-foreground">{item.question}</p>
               <p className="mt-1 text-muted-foreground">{item.whatItTests}</p>
             </li>
@@ -191,7 +211,9 @@ export function PreInterviewBriefing({
           <Link
             to="/practice"
             search={practiceSearch}
-            onClick={() => setQueuedQuestions(briefing.likelyQuestions.map((item) => item.question))}
+            onClick={() =>
+              setQueuedQuestions(briefing.likelyQuestions.map((item) => item.question))
+            }
           >
             Practice these questions
           </Link>

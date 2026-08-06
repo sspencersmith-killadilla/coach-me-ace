@@ -52,11 +52,21 @@ export function PromotionSetup() {
           </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button variant="secondary" size="sm" className="rounded-full" onClick={() => setOpen(true)}>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="rounded-full"
+            onClick={() => setOpen(true)}
+          >
             <Pencil className="size-4" aria-hidden />
             Edit promotion details
           </Button>
-          <Button variant="ghost" size="sm" className="rounded-full text-muted-foreground" onClick={remove}>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="rounded-full text-muted-foreground"
+            onClick={remove}
+          >
             <Trash2 className="size-4" aria-hidden />
             Remove
           </Button>
@@ -148,7 +158,11 @@ export function PromotionSetup() {
           <Award className="size-4" aria-hidden />
           Use promotion mode
         </Button>
-        <Button variant="ghost" className="rounded-full text-muted-foreground" onClick={() => setOpen(false)}>
+        <Button
+          variant="ghost"
+          className="rounded-full text-muted-foreground"
+          onClick={() => setOpen(false)}
+        >
           Cancel
         </Button>
       </div>
