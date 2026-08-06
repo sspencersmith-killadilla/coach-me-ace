@@ -103,6 +103,36 @@ export function FeedbackCard({
         </section>
       ) : null}
 
+      {feedback.nextLevelReadiness ? (
+        <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <Award className="size-5 text-primary" aria-hidden />
+            Next-level readiness
+          </h3>
+          <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.nextLevelReadiness}</p>
+        </section>
+      ) : null}
+
+      {feedback.internalEvidence ? (
+        <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <FileUser className="size-5 text-primary" aria-hidden />
+            Internal evidence to cite
+          </h3>
+          <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.internalEvidence}</p>
+        </section>
+      ) : null}
+
+      {feedback.promotionRisk ? (
+        <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <Lightbulb className="size-5 text-accent" aria-hidden />
+            Panel risk to address
+          </h3>
+          <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.promotionRisk}</p>
+        </section>
+      ) : null}
+
       {feedback.resumeGap ? (
         <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
           <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">

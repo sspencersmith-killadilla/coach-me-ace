@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Heart, MessageCircleQuestion, Mic, Target, Timer } from "lucide-react";
+import { Award, Heart, MessageCircleQuestion, Mic, Target, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { JobPostingUpload } from "@/components/interview/JobPostingUpload";
 import { PreInterviewBriefing } from "@/components/interview/PreInterviewBriefing";
 import { ProgressCard } from "@/components/interview/ProgressCard";
+import { PromotionSetup } from "@/components/interview/PromotionSetup";
 import { ResumeUpload } from "@/components/interview/ResumeUpload";
+import { usePromotion } from "@/lib/promotion-context";
 import { CATEGORIES, QUESTIONS, QUESTION_COUNT } from "@/data/questions";
 import { useMemo, useState } from "react";
 
