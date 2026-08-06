@@ -13,6 +13,7 @@ import { useQuestionVoice } from "@/hooks/use-question-voice";
 import { analyzeVocalHabits } from "@/lib/answer-habits";
 import { useBriefing } from "@/lib/briefing-context";
 import { useJobBrief } from "@/lib/job-brief-context";
+import { usePromotion } from "@/lib/promotion-context";
 import {
   appendRecords,
   categoryScores as historyCategoryScores,
@@ -22,12 +23,12 @@ import {
   type AnswerRecord,
 } from "@/lib/progress";
 import { useResume } from "@/lib/resume-context";
-import { buildPool, parseCategories, pickNext, type Mode } from "@/lib/session";
+import { buildPool, parseCategories, pickNext, PROMOTION_CATEGORIES, type Mode } from "@/lib/session";
 import { getInterviewFeedback, type InterviewFeedback } from "@/lib/feedback.functions";
 import { getFollowUps } from "@/lib/follow-ups.functions";
 
 const SESSION_OPTIONS = [5, 10, 20, QUESTION_COUNT];
-const MODES: Mode[] = ["random", "sequential", "weakest", "mock"];
+const MODES: Mode[] = ["random", "sequential", "weakest", "mock", "promotion"];
 type Tone = "warm" | "tough";
 
 export const Route = createFileRoute("/practice")({
@@ -82,10 +83,20 @@ function Practice() {
   const requestFollowUps = useServerFn(getFollowUps);
   const { brief } = useJobBrief();
   const { resume } = useResume();
+  const { promotion } = usePromotion();
   const { queuedQuestions, setQueuedQuestions, hydrated: briefingHydrated } = useBriefing();
   const voice = useQuestionVoice(tone);
 
-  const pool = useMemo(() => buildPool(parseCategories(cats)), [cats]);
+  const isPromotionMode = mode === "promotion";
+  const pool = useMemo(
+    () =>
+      buildPool(
+        isPromotionMode
+          ? PROMOTION_CATEGORIES
+          : parseCategories(cats),
+      ),
+    [cats, isPromotionMode],
+  );
   const sessionTotal = Math.min(count, pool.length);
   const isMock = mode === "mock";
 
