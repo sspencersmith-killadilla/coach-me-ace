@@ -81,7 +81,12 @@ function wordsIn(text: string) {
   return trimmed ? trimmed.split(/\s+/).length : 0;
 }
 
-type TranscriptEntry = { question: string; answer: string; isFollowUp: boolean };
+type TranscriptEntry = {
+  question: string;
+  category: string;
+  answer: string;
+  isFollowUp: boolean;
+};
 
 function Practice() {
   const { mode, count, cats, tone } = Route.useSearch();
@@ -219,7 +224,7 @@ function Practice() {
     if (isMock) {
       const nextTranscript: TranscriptEntry[] = [
         ...transcript,
-        { question: activeQuestion, answer: given, isFollowUp },
+        { question: activeQuestion, category: question.category, answer: given, isFollowUp },
       ];
       setTranscript(nextTranscript);
 
@@ -357,7 +362,7 @@ function Practice() {
           records.push({
             at: new Date().toISOString(),
             question: entry.question,
-            category: entry.isFollowUp ? "Follow-up" : question.category,
+            category: entry.isFollowUp ? "Follow-up" : entry.category,
             mode: "mock",
             score: result.score,
             words: wordsIn(entry.answer),
