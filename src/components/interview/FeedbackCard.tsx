@@ -1,4 +1,4 @@
-import { ArrowRight, Briefcase, FileUser, Heart, Lightbulb, RotateCcw, Star } from "lucide-react";
+import { ArrowRight, Award, Briefcase, FileUser, Heart, Lightbulb, RotateCcw, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FollowUpCard } from "./FollowUpCard";
 import { VocalHabitsCard } from "./VocalHabitsCard";

@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertCircle, CheckCircle2, Loader2, RefreshCw, Sparkles, TriangleAlert } from "lucide-react";
+import { AlertCircle, Award, CheckCircle2, Loader2, RefreshCw, Sparkles, TriangleAlert } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { briefingSignature, useBriefing } from "@/lib/briefing-context";
 import { getPreInterviewBriefing } from "@/lib/briefing.functions";
 import { useJobBrief } from "@/lib/job-brief-context";
+import { usePromotion } from "@/lib/promotion-context";
 import { useResume } from "@/lib/resume-context";
 
 export function PreInterviewBriefing({
