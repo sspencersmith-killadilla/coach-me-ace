@@ -89,9 +89,9 @@ export function useBriefing() {
   return useContext(BriefingContext);
 }
 
-/** Cheap stable signature so a changed resume or posting invalidates a cached briefing. */
-export function briefingSignature(a: unknown, b: unknown) {
-  const raw = JSON.stringify([a, b]);
+/** Cheap stable signature so a changed resume, posting, or promotion context invalidates a cached briefing. */
+export function briefingSignature(input: { brief: unknown; resume: unknown; promotion?: unknown }) {
+  const raw = JSON.stringify([input.brief, input.resume, input.promotion]);
   let hash = 0;
   for (let index = 0; index < raw.length; index += 1) {
     hash = (hash * 31 + raw.charCodeAt(index)) | 0;
