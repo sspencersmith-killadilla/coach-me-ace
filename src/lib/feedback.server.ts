@@ -5,6 +5,7 @@ import {
   BASE_SYSTEM_PROMPT,
   FeedbackSchema,
   JOB_CONTEXT_PROMPT,
+  PROMOTION_CONTEXT_PROMPT,
   RESUME_CONTEXT_PROMPT,
   SENIORITY_PROMPT,
   TOUGH_TONE_PROMPT,
@@ -12,6 +13,7 @@ import {
   type InterviewFeedback,
 } from "./feedback-schema";
 import { describeJobBrief } from "./job-brief";
+import { describePromotion } from "./promotion";
 import { describeResume, inferSeniority } from "./resume";
 
 type Input = z.infer<typeof FeedbackInput>;
