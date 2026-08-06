@@ -5,9 +5,11 @@ import {
   BRIEFING_SYSTEM_PROMPT,
   BriefingInput,
   BriefingSchema,
+  PROMOTION_BRIEFING_SYSTEM_PROMPT,
   type PreInterviewBriefing,
 } from "./briefing";
 import { describeJobBrief } from "./job-brief";
+import { describePromotion } from "./promotion";
 import { describeResume, inferSeniority } from "./resume";
 
 type Input = z.infer<typeof BriefingInput>;
