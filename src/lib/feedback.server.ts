@@ -34,6 +34,10 @@ export async function generateInterviewFeedback(data: Input): Promise<InterviewF
     sections.push(describeResume(data.resume));
     sections.push(SENIORITY_PROMPT(inferSeniority(data.resume)));
   }
+  if (data.promotion?.isActive) {
+    sections.push(PROMOTION_CONTEXT_PROMPT);
+    sections.push(describePromotion(data.promotion));
+  }
   if (data.tone === "tough") {
     sections.push(TOUGH_TONE_PROMPT);
   }
