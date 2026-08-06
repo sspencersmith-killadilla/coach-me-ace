@@ -124,6 +124,12 @@ function Welcome() {
                 Run a full mock interview
               </Link>
             </Button>
+            <Button asChild variant="outline" size="lg" className="rounded-full px-7">
+              <Link to="/practice" search={{ mode: "promotion", count, cats, tone }}>
+                <Award className="size-4" aria-hidden />
+                Practice a promotion interview
+              </Link>
+            </Button>
           </div>
           <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
             A mock interview runs {sessionSize} question{sessionSize === 1 ? "" : "s"} back-to-back
@@ -226,6 +232,7 @@ function Welcome() {
 
         <JobPostingUpload />
         <ResumeUpload />
+        <PromotionSetup />
         <PreInterviewBriefing practiceSearch={{ mode: "random", count, cats, tone }} />
 
         <div className="mt-16 grid gap-4 sm:grid-cols-3">
