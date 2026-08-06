@@ -12,8 +12,7 @@ export function VocalHabitsCard({ answer, previousFillerRate, previousLabel }: P
   const habits = analyzeVocalHabits(answer);
   if (!habits) return null;
 
-  const delta =
-    previousFillerRate != null ? habits.fillerRate - previousFillerRate : null;
+  const delta = previousFillerRate != null ? habits.fillerRate - previousFillerRate : null;
   const improving = delta != null && delta < -0.2;
   const slipping = delta != null && delta > 0.2;
 

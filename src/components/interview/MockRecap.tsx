@@ -44,7 +44,9 @@ export function MockRecap({ results, grading, gradedCount, total, error, onResta
       </div>
 
       {error ? (
-        <p className="rounded-2xl border border-border bg-card p-4 text-sm text-destructive">{error}</p>
+        <p className="rounded-2xl border border-border bg-card p-4 text-sm text-destructive">
+          {error}
+        </p>
       ) : null}
 
       {!grading && priorities.length ? (

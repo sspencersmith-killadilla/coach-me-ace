@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { JobBriefSchema } from "./job-brief";
+import { PromotionSchema } from "./promotion";
 import { ResumeSchema } from "./resume";
 
 export const FeedbackInput = z.object({
@@ -7,9 +8,9 @@ export const FeedbackInput = z.object({
   answer: z.string().min(1),
   jobBrief: JobBriefSchema.optional(),
   resume: ResumeSchema.optional(),
+  promotion: PromotionSchema.optional(),
   tone: z.enum(["warm", "tough"]).optional(),
 });
-
 
 export const FeedbackSchema = z.object({
   score: z.number(),
@@ -19,6 +20,9 @@ export const FeedbackSchema = z.object({
   jobFit: z.string().optional(),
   suggestedExperience: z.string().optional(),
   resumeGap: z.string().optional(),
+  nextLevelReadiness: z.string().optional(),
+  internalEvidence: z.string().optional(),
+  promotionRisk: z.string().optional(),
 });
 
 export type InterviewFeedback = z.infer<typeof FeedbackSchema>;
@@ -41,6 +45,19 @@ export const RESUME_CONTEXT_PROMPT = `You also have the candidate's resume below
 - suggestedExperience: one concise sentence recommending which past role or project the candidate should draw from for this question.
 - resumeGap: if a job brief is also provided, identify the single biggest gap between the candidate's background and the role's requirements, and suggest one way to bridge it in the answer. If no job brief is provided, omit this field.
 - The starAnswer should weave in real details from the resume when relevant, but never invent specifics that aren't in the resume. Keep the answer sounding like the candidate, not a polished template.`;
+
+export const PROMOTION_CONTEXT_PROMPT = `This is an INTERNAL PROMOTION interview, not an external job application. The candidate already works at the company. Adjust your coaching accordingly:
+
+- "Fit" here means readiness for the NEXT level, not culture-match against a new employer.
+- Judge the answer against the scope and expectations of the target role, not the candidate's current role.
+- Look for evidence of internal track record, relationships, institutional knowledge, and influence inside this company.
+- Flag answers that sound like an external applicant (generic company praise, first impressions of the culture) rather than someone who already knows how work gets done here.
+- Expect the candidate to cite internal stakeholders, projects, and wins where possible.
+
+Return three extra fields:
+- nextLevelReadiness: one sentence on whether this answer demonstrates the target level of scope and judgment.
+- internalEvidence: one concise sentence recommending which internal achievement, project, or relationship the candidate should draw from for this question.
+- promotionRisk: the biggest risk a promotion panel would see in this answer and one concrete way to address it.`;
 
 export const TOUGH_TONE_PROMPT = `Override the warm delivery. Role-play a cold, unimpressed senior panelist: the kind of interviewer who has heard four versions of this answer today and is not charmed. Same rubric, same honesty, tougher delivery.
 - Score strictly. A merely competent answer is a 5 or 6; reserve 8+ for answers that would genuinely stand out in a strong candidate pool.

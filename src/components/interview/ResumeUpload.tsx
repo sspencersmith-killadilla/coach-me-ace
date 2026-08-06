@@ -34,7 +34,12 @@ export function ResumeUpload() {
   const [dragActive, setDragActive] = useState(false);
 
   const runParse = useCallback(
-    async (payload: { text?: string; fileDataUrl?: string; fileName?: string; mimeType?: string }) => {
+    async (payload: {
+      text?: string;
+      fileDataUrl?: string;
+      fileName?: string;
+      mimeType?: string;
+    }) => {
       setPending(true);
       setError(null);
       try {
@@ -100,7 +105,12 @@ export function ResumeUpload() {
           </div>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button variant="secondary" size="sm" className="rounded-full" onClick={() => setDraft(resume)}>
+          <Button
+            variant="secondary"
+            size="sm"
+            className="rounded-full"
+            onClick={() => setDraft(resume)}
+          >
             <Pencil className="size-4" aria-hidden />
             Edit resume
           </Button>
@@ -253,7 +263,9 @@ export function ResumeUpload() {
           type="button"
           onClick={() => setMode("file")}
           className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-            mode === "file" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+            mode === "file"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Upload file
@@ -262,7 +274,9 @@ export function ResumeUpload() {
           type="button"
           onClick={() => setMode("text")}
           className={`flex-1 rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-            mode === "text" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+            mode === "text"
+              ? "bg-background text-foreground shadow-sm"
+              : "text-muted-foreground hover:text-foreground"
           }`}
         >
           Paste text

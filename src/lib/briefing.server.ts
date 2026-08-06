@@ -5,9 +5,11 @@ import {
   BRIEFING_SYSTEM_PROMPT,
   BriefingInput,
   BriefingSchema,
+  PROMOTION_BRIEFING_SYSTEM_PROMPT,
   type PreInterviewBriefing,
 } from "./briefing";
 import { describeJobBrief } from "./job-brief";
+import { describePromotion } from "./promotion";
 import { describeResume, inferSeniority } from "./resume";
 
 type Input = z.infer<typeof BriefingInput>;
@@ -18,20 +20,42 @@ export async function generateBriefing(data: Input): Promise<PreInterviewBriefin
 
   const gateway = createLovableAiGatewayProvider(key);
 
-  const prompt = [
-    "THE ROLE",
-    describeJobBrief(data.jobBrief),
-    "",
-    "THE CANDIDATE",
-    describeResume(data.resume),
-    "",
-    `Apparent seniority: ${inferSeniority(data.resume)}. Calibrate expectations to that level.`,
-  ].join("\n");
+  const isPromotion = data.promotion?.isActive ?? false;
+
+  const promptParts: string[] = [];
+  if (isPromotion) {
+    promptParts.push(
+      "THE TARGET ROLE / LEVEL",
+      describeJobBrief(data.jobBrief),
+      "",
+      "THE CANDIDATE",
+      describeResume(data.resume),
+    );
+    const promotionDescription = describePromotion(data.promotion!);
+    if (promotionDescription) {
+      promptParts.push("", "PROMOTION CONTEXT", promotionDescription);
+    }
+    promptParts.push(
+      "",
+      `Apparent seniority: ${inferSeniority(data.resume)}. Calibrate expectations to the target level above this.`,
+    );
+  } else {
+    promptParts.push(
+      "THE ROLE",
+      describeJobBrief(data.jobBrief),
+      "",
+      "THE CANDIDATE",
+      describeResume(data.resume),
+      "",
+      `Apparent seniority: ${inferSeniority(data.resume)}. Calibrate expectations to that level.`,
+    );
+  }
+  const prompt = promptParts.join("\n");
 
   try {
     const result = streamText({
       model: gateway("google/gemini-3.6-flash"),
-      system: BRIEFING_SYSTEM_PROMPT,
+      system: isPromotion ? PROMOTION_BRIEFING_SYSTEM_PROMPT : BRIEFING_SYSTEM_PROMPT,
       output: Output.object({ schema: BriefingSchema }),
       prompt,
     });

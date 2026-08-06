@@ -1,14 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Heart, MessageCircleQuestion, Mic, Target, Timer } from "lucide-react";
+import { Award, Heart, MessageCircleQuestion, Mic, Target, Timer } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { JobPostingUpload } from "@/components/interview/JobPostingUpload";
 import { PreInterviewBriefing } from "@/components/interview/PreInterviewBriefing";
 import { ProgressCard } from "@/components/interview/ProgressCard";
+import { PromotionSetup } from "@/components/interview/PromotionSetup";
 import { ResumeUpload } from "@/components/interview/ResumeUpload";
+import { usePromotion } from "@/lib/promotion-context";
 import { CATEGORIES, QUESTIONS, QUESTION_COUNT } from "@/data/questions";
 import { useMemo, useState } from "react";
-
-
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -19,7 +19,10 @@ export const Route = createFileRoute("/")({
         content:
           "Practice 136 real interview questions by typing or speaking, and get warm, specific AI coaching with a STAR-method model answer.",
       },
-      { property: "og:title", content: "Mock Interview Coach — Practice with a Supportive AI Coach" },
+      {
+        property: "og:title",
+        content: "Mock Interview Coach — Practice with a Supportive AI Coach",
+      },
       {
         property: "og:description",
         content:
@@ -122,6 +125,12 @@ function Welcome() {
                 Run a full mock interview
               </Link>
             </Button>
+            <Button asChild variant="outline" size="lg" className="rounded-full px-7">
+              <Link to="/practice" search={{ mode: "promotion", count, cats, tone }}>
+                <Award className="size-4" aria-hidden />
+                Practice a promotion interview
+              </Link>
+            </Button>
           </div>
           <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
             A mock interview runs {sessionSize} question{sessionSize === 1 ? "" : "s"} back-to-back
@@ -179,7 +188,6 @@ function Welcome() {
               : "Warm, encouraging feedback that leads with what worked."}
           </p>
 
-
           <div className="mt-6 rounded-3xl border border-border bg-card p-5 text-left shadow-sm">
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 className="text-sm font-semibold text-foreground">
@@ -224,6 +232,7 @@ function Welcome() {
 
         <JobPostingUpload />
         <ResumeUpload />
+        <PromotionSetup />
         <PreInterviewBriefing practiceSearch={{ mode: "random", count, cats, tone }} />
 
         <div className="mt-16 grid gap-4 sm:grid-cols-3">
@@ -240,7 +249,6 @@ function Welcome() {
           Your answers never leave your browser — progress is stored on this device, and yours to
           export whenever you want.
         </p>
-
       </div>
     </main>
   );

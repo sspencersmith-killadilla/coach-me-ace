@@ -1,11 +1,20 @@
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { AlertCircle, CheckCircle2, Loader2, RefreshCw, Sparkles, TriangleAlert } from "lucide-react";
+import {
+  AlertCircle,
+  Award,
+  CheckCircle2,
+  Loader2,
+  RefreshCw,
+  Sparkles,
+  TriangleAlert,
+} from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { briefingSignature, useBriefing } from "@/lib/briefing-context";
 import { getPreInterviewBriefing } from "@/lib/briefing.functions";
 import { useJobBrief } from "@/lib/job-brief-context";
+import { usePromotion } from "@/lib/promotion-context";
 import { useResume } from "@/lib/resume-context";
 
 export function PreInterviewBriefing({
@@ -15,6 +24,7 @@ export function PreInterviewBriefing({
 }) {
   const { brief } = useJobBrief();
   const { resume } = useResume();
+  const { promotion } = usePromotion();
   const { briefing, signature, setBriefing, setQueuedQuestions, hydrated } = useBriefing();
   const request = useServerFn(getPreInterviewBriefing);
 
@@ -22,23 +32,27 @@ export function PreInterviewBriefing({
   const [error, setError] = useState<string | null>(null);
 
   const currentSignature = useMemo(
-    () => (brief && resume ? briefingSignature(brief, resume) : null),
-    [brief, resume],
+    () => (brief && resume ? briefingSignature({ brief, resume, promotion }) : null),
+    [brief, resume, promotion],
   );
+
+  const isPromotion = promotion.isActive;
 
   const run = useCallback(async () => {
     if (!brief || !resume) return;
     setPending(true);
     setError(null);
     try {
-      const result = await request({ data: { jobBrief: brief, resume } });
+      const result = await request({
+        data: { jobBrief: brief, resume, ...(isPromotion ? { promotion } : {}) },
+      });
       setBriefing(result, currentSignature ?? "");
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Couldn't build your briefing.");
     } finally {
       setPending(false);
     }
-  }, [brief, resume, request, setBriefing, currentSignature]);
+  }, [brief, resume, request, setBriefing, currentSignature, promotion, isPromotion]);
 
   if (!hydrated) return null;
 
@@ -48,11 +62,21 @@ export function PreInterviewBriefing({
   if (!ready) {
     return (
       <div className="mt-6 rounded-3xl border border-dashed border-border bg-muted/40 p-6 text-left">
-        <h2 className="text-base font-semibold text-foreground">Your fit for this role</h2>
+        <h2 className="text-base font-semibold text-foreground">
+          {isPromotion ? "Your readiness for the next level" : "Your fit for this role"}
+        </h2>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-          Add {!brief && !resume ? "the job posting and your resume" : !brief ? "the job posting" : "your resume"} above
-          and we'll write you a short pre-interview briefing — how you fit, what to lean on, and where a panel will
-          press.
+          Add{" "}
+          {!brief && !resume
+            ? "the job posting and your resume"
+            : !brief
+              ? "the job posting"
+              : "your resume"}{" "}
+          above and we'll write you a short pre-interview briefing —{" "}
+          {isPromotion
+            ? "how ready you look for the promotion, what to lean on, and where the panel will press"
+            : "how you fit, what to lean on, and where a panel will press"}
+          .
         </p>
       </div>
     );
@@ -62,13 +86,21 @@ export function PreInterviewBriefing({
     return (
       <div className="animate-rise mt-6 rounded-3xl border border-border bg-card p-6 text-left shadow-sm">
         <div className="flex items-start gap-3">
-          <Sparkles className="mt-0.5 size-5 text-primary" aria-hidden />
+          {isPromotion ? (
+            <Award className="mt-0.5 size-5 text-primary" aria-hidden />
+          ) : (
+            <Sparkles className="mt-0.5 size-5 text-primary" aria-hidden />
+          )}
           <div className="flex-1">
-            <h2 className="text-base font-semibold text-foreground">Your fit for this role</h2>
+            <h2 className="text-base font-semibold text-foreground">
+              {isPromotion ? "Your readiness for the next level" : "Your fit for this role"}
+            </h2>
             <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
               {stale
-                ? "Your posting or resume changed — refresh the briefing so it matches."
-                : "Before you start, get a quick read on how your background lines up with this job and what you should watch out for."}
+                ? "Your posting, resume, or promotion details changed — refresh the briefing so it matches."
+                : isPromotion
+                  ? "Before you start, get a quick read on how ready you look for the promotion and where the panel will press hardest."
+                  : "Before you start, get a quick read on how your background lines up with this job and what you should watch out for."}
             </p>
           </div>
         </div>
@@ -81,7 +113,13 @@ export function PreInterviewBriefing({
         <div className="mt-4">
           <Button className="rounded-full" disabled={pending} onClick={() => void run()}>
             {pending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
-            {pending ? "Reading your background…" : stale ? "Refresh my briefing" : "Get my pre-interview briefing"}
+            {pending
+              ? "Reading your background…"
+              : stale
+                ? "Refresh my briefing"
+                : isPromotion
+                  ? "Get my promotion briefing"
+                  : "Get my pre-interview briefing"}
           </Button>
         </div>
       </div>
@@ -92,14 +130,18 @@ export function PreInterviewBriefing({
     <div className="animate-rise mt-6 space-y-6 rounded-3xl border border-border bg-card p-6 text-left shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h2 className="text-base font-semibold text-foreground">Your fit for this role</h2>
+          <h2 className="text-base font-semibold text-foreground">
+            {isPromotion ? "Your readiness for the next level" : "Your fit for this role"}
+          </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            {brief!.title} at {brief!.company}
+            {isPromotion && promotion.targetRole
+              ? `${promotion.targetRole}${brief ? ` at ${brief.company}` : ""}`
+              : `${brief!.title} at ${brief!.company}`}
           </p>
         </div>
         <div className="flex items-center gap-3">
           <span className="rounded-full bg-warm px-3 py-1 text-sm font-semibold text-warm-foreground">
-            Fit {briefing.fitScore}/10
+            {isPromotion ? "Readiness" : "Fit"} {briefing.fitScore}/10
           </span>
           <button
             type="button"
@@ -116,7 +158,9 @@ export function PreInterviewBriefing({
       <p className="text-sm leading-relaxed text-foreground">{briefing.fitSummary}</p>
 
       <div>
-        <h3 className="text-sm font-semibold text-foreground">Your strongest cards</h3>
+        <h3 className="text-sm font-semibold text-foreground">
+          {isPromotion ? "Why you look ready" : "Your strongest cards"}
+        </h3>
         <ul className="mt-2 space-y-2">
           {briefing.strengths.map((item) => (
             <li key={item.point} className="flex items-start gap-2 text-sm leading-relaxed">
@@ -130,7 +174,9 @@ export function PreInterviewBriefing({
       </div>
 
       <div>
-        <h3 className="text-sm font-semibold text-foreground">Watch out for</h3>
+        <h3 className="text-sm font-semibold text-foreground">
+          {isPromotion ? "Where the panel will press" : "Watch out for"}
+        </h3>
         <ul className="mt-2 space-y-2">
           {briefing.watchOuts.map((item) => (
             <li key={item.gap} className="flex items-start gap-2 text-sm leading-relaxed">
@@ -147,7 +193,10 @@ export function PreInterviewBriefing({
         <h3 className="text-sm font-semibold text-foreground">Questions to expect</h3>
         <ul className="mt-2 space-y-2">
           {briefing.likelyQuestions.map((item) => (
-            <li key={item.question} className="rounded-2xl bg-muted/60 px-4 py-3 text-sm leading-relaxed">
+            <li
+              key={item.question}
+              className="rounded-2xl bg-muted/60 px-4 py-3 text-sm leading-relaxed"
+            >
               <p className="font-medium text-foreground">{item.question}</p>
               <p className="mt-1 text-muted-foreground">{item.whatItTests}</p>
             </li>
@@ -162,7 +211,9 @@ export function PreInterviewBriefing({
           <Link
             to="/practice"
             search={practiceSearch}
-            onClick={() => setQueuedQuestions(briefing.likelyQuestions.map((item) => item.question))}
+            onClick={() =>
+              setQueuedQuestions(briefing.likelyQuestions.map((item) => item.question))
+            }
           >
             Practice these questions
           </Link>

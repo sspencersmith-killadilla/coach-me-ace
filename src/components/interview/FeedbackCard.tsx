@@ -1,4 +1,13 @@
-import { ArrowRight, Briefcase, FileUser, Heart, Lightbulb, RotateCcw, Star } from "lucide-react";
+import {
+  ArrowRight,
+  Award,
+  Briefcase,
+  FileUser,
+  Heart,
+  Lightbulb,
+  RotateCcw,
+  Star,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { FollowUpCard } from "./FollowUpCard";
 import { VocalHabitsCard } from "./VocalHabitsCard";
@@ -22,8 +31,6 @@ type Props = {
   onNext: () => void;
   onPracticeFollowUp: (followUpQuestion: string) => void;
 };
-
-
 
 function toughVerdict(score: number) {
   if (score >= 9) return "That would hold up in front of a skeptical panel.";
@@ -54,7 +61,6 @@ export function FeedbackCard({
   onNext,
   onPracticeFollowUp,
 }: Props) {
-
   return (
     <div className="animate-rise space-y-4">
       <div className="flex flex-col items-center gap-3 rounded-3xl border border-border bg-warm p-6 text-center">
@@ -89,7 +95,9 @@ export function FeedbackCard({
             <FileUser className="size-5 text-primary" aria-hidden />
             Experience to draw from
           </h3>
-          <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.suggestedExperience}</p>
+          <p className="mt-2 leading-relaxed text-muted-foreground">
+            {feedback.suggestedExperience}
+          </p>
         </section>
       ) : null}
 
@@ -100,6 +108,38 @@ export function FeedbackCard({
             How this lands for the role
           </h3>
           <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.jobFit}</p>
+        </section>
+      ) : null}
+
+      {feedback.nextLevelReadiness ? (
+        <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <Award className="size-5 text-primary" aria-hidden />
+            Next-level readiness
+          </h3>
+          <p className="mt-2 leading-relaxed text-muted-foreground">
+            {feedback.nextLevelReadiness}
+          </p>
+        </section>
+      ) : null}
+
+      {feedback.internalEvidence ? (
+        <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <FileUser className="size-5 text-primary" aria-hidden />
+            Internal evidence to cite
+          </h3>
+          <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.internalEvidence}</p>
+        </section>
+      ) : null}
+
+      {feedback.promotionRisk ? (
+        <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+            <Lightbulb className="size-5 text-accent" aria-hidden />
+            Panel risk to address
+          </h3>
+          <p className="mt-2 leading-relaxed text-muted-foreground">{feedback.promotionRisk}</p>
         </section>
       ) : null}
 
@@ -129,7 +169,6 @@ export function FeedbackCard({
         {...(previousFillerLabel ? { previousFillerLabel } : {})}
       />
 
-
       <ConfidenceCheck value={confidence} score={feedback.score} onChange={onConfidence} />
 
       <FollowUpCard
@@ -139,7 +178,6 @@ export function FeedbackCard({
         resume={resume}
         onPracticeFollowUp={onPracticeFollowUp}
       />
-
 
       <div className="flex flex-wrap gap-3 pt-1">
         <Button onClick={onNext} size="lg" className="rounded-full">

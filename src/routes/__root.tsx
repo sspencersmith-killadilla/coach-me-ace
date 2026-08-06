@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { BriefingProvider } from "../lib/briefing-context";
 import { JobBriefProvider } from "../lib/job-brief-context";
+import { PromotionProvider } from "../lib/promotion-context";
 import { ResumeProvider } from "../lib/resume-context";
 
 function NotFoundComponent() {
@@ -130,10 +131,12 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <JobBriefProvider>
         <ResumeProvider>
-          <BriefingProvider>
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-          </BriefingProvider>
+          <PromotionProvider>
+            <BriefingProvider>
+              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+              <Outlet />
+            </BriefingProvider>
+          </PromotionProvider>
         </ResumeProvider>
       </JobBriefProvider>
     </QueryClientProvider>

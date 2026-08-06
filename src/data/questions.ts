@@ -193,9 +193,9 @@ const groups: { category: string; items: string[] }[] = [
   },
 ];
 
-export const QUESTIONS: Question[] = groups.flatMap((group) =>
-  group.items.map((text) => ({ text, category: group.category })),
-).map((q, i) => ({ id: i + 1, ...q }));
+export const QUESTIONS: Question[] = groups
+  .flatMap((group) => group.items.map((text) => ({ text, category: group.category })))
+  .map((q, i) => ({ id: i + 1, ...q }));
 
 export const QUESTION_COUNT = QUESTIONS.length;
 

@@ -153,7 +153,6 @@ export function AnswerComposer({ value, onChange, onSubmit, onSkip, pending }: P
         </div>
       ) : null}
 
-
       {recording ? (
         <div className="mt-3 flex items-center gap-3" aria-live="polite">
           <span className="relative flex size-2.5">
@@ -171,9 +170,11 @@ export function AnswerComposer({ value, onChange, onSubmit, onSkip, pending }: P
         </div>
       ) : null}
 
-
       {transcribing ? (
-        <p className="mt-3 flex items-center gap-2 text-sm text-muted-foreground" aria-live="polite">
+        <p
+          className="mt-3 flex items-center gap-2 text-sm text-muted-foreground"
+          aria-live="polite"
+        >
           <Loader2 className="size-4 animate-spin" aria-hidden />
           {interim ? interim : "Writing down what you said…"}
         </p>
@@ -184,7 +185,12 @@ export function AnswerComposer({ value, onChange, onSubmit, onSkip, pending }: P
       ) : null}
 
       <div className="mt-4 flex flex-wrap items-center gap-3">
-        <Button onClick={onSubmit} disabled={pending || recording || !value.trim()} size="lg" className="rounded-full">
+        <Button
+          onClick={onSubmit}
+          disabled={pending || recording || !value.trim()}
+          size="lg"
+          className="rounded-full"
+        >
           <Send className="size-4" aria-hidden />
           {pending ? "Coaching in progress…" : "Submit answer"}
         </Button>
@@ -197,7 +203,11 @@ export function AnswerComposer({ value, onChange, onSubmit, onSkip, pending }: P
           disabled={pending}
           className="rounded-full"
         >
-          {recording ? <Square className="size-4" aria-hidden /> : <Mic className="size-4" aria-hidden />}
+          {recording ? (
+            <Square className="size-4" aria-hidden />
+          ) : (
+            <Mic className="size-4" aria-hidden />
+          )}
           {recording ? "Stop and transcribe" : "Answer out loud"}
         </Button>
 

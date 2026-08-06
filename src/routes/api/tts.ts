@@ -21,7 +21,10 @@ export const Route = createFileRoute("/api/tts")({
       POST: async ({ request }) => {
         const key = process.env["LOVABLE_API_KEY"];
         if (!key) {
-          return Response.json({ error: "Spoken questions are not configured yet." }, { status: 500 });
+          return Response.json(
+            { error: "Spoken questions are not configured yet." },
+            { status: 500 },
+          );
         }
 
         let payload: { text?: unknown; tone?: unknown };
@@ -31,7 +34,8 @@ export const Route = createFileRoute("/api/tts")({
           return Response.json({ error: "Expected a question to read." }, { status: 400 });
         }
 
-        const text = typeof payload.text === "string" ? payload.text.trim().slice(0, MAX_CHARS) : "";
+        const text =
+          typeof payload.text === "string" ? payload.text.trim().slice(0, MAX_CHARS) : "";
         if (!text) {
           return Response.json({ error: "Nothing to read aloud." }, { status: 400 });
         }

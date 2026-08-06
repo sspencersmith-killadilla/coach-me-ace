@@ -10,7 +10,10 @@ export type VocalHabits = {
 const FILLER_PATTERNS: { word: string; pattern: RegExp }[] = [
   { word: "um", pattern: /\b(?:um+|umm+|uhm+)\b/gi },
   { word: "uh", pattern: /\b(?:uh+|er+|erm+)\b/gi },
-  { word: "like", pattern: /\b(?:like)\b(?=,|\s+(?:i|we|you|it|he|she|they|a|the|really|just|kind|sort))/gi },
+  {
+    word: "like",
+    pattern: /\b(?:like)\b(?=,|\s+(?:i|we|you|it|he|she|they|a|the|really|just|kind|sort))/gi,
+  },
   { word: "you know", pattern: /\byou know\b/gi },
   { word: "sort of", pattern: /\bsort of\b/gi },
   { word: "kind of", pattern: /\bkind of\b/gi },
@@ -51,7 +54,6 @@ export function analyzeVocalHabits(answer: string): VocalHabits | null {
   } else {
     tip = `"${fillers[0]!.word}" is showing up a lot. Slow down slightly and finish one thought before starting the next; the fillers usually disappear on their own.`;
   }
-
 
   if (wordCount > 320) {
     tip += " This answer also runs long — aim for about 90 seconds out loud.";

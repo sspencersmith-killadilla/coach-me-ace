@@ -13,6 +13,7 @@ import { useQuestionVoice } from "@/hooks/use-question-voice";
 import { analyzeVocalHabits } from "@/lib/answer-habits";
 import { useBriefing } from "@/lib/briefing-context";
 import { useJobBrief } from "@/lib/job-brief-context";
+import { usePromotion } from "@/lib/promotion-context";
 import {
   appendRecords,
   categoryScores as historyCategoryScores,
@@ -22,12 +23,18 @@ import {
   type AnswerRecord,
 } from "@/lib/progress";
 import { useResume } from "@/lib/resume-context";
-import { buildPool, parseCategories, pickNext, type Mode } from "@/lib/session";
+import {
+  buildPool,
+  parseCategories,
+  pickNext,
+  PROMOTION_CATEGORIES,
+  type Mode,
+} from "@/lib/session";
 import { getInterviewFeedback, type InterviewFeedback } from "@/lib/feedback.functions";
 import { getFollowUps } from "@/lib/follow-ups.functions";
 
 const SESSION_OPTIONS = [5, 10, 20, QUESTION_COUNT];
-const MODES: Mode[] = ["random", "sequential", "weakest", "mock"];
+const MODES: Mode[] = ["random", "sequential", "weakest", "mock", "promotion"];
 type Tone = "warm" | "tough";
 
 export const Route = createFileRoute("/practice")({
@@ -82,16 +89,19 @@ function Practice() {
   const requestFollowUps = useServerFn(getFollowUps);
   const { brief } = useJobBrief();
   const { resume } = useResume();
+  const { promotion } = usePromotion();
   const { queuedQuestions, setQueuedQuestions, hydrated: briefingHydrated } = useBriefing();
   const voice = useQuestionVoice(tone);
 
-  const pool = useMemo(() => buildPool(parseCategories(cats)), [cats]);
+  const isPromotionMode = mode === "promotion";
+  const pool = useMemo(
+    () => buildPool(isPromotionMode ? PROMOTION_CATEGORIES : parseCategories(cats)),
+    [cats, isPromotionMode],
+  );
   const sessionTotal = Math.min(count, pool.length);
   const isMock = mode === "mock";
 
-  const [questionId, setQuestionId] = useState(
-    () => pickNext(pool, mode, [], null, {})!,
-  );
+  const [questionId, setQuestionId] = useState(() => pickNext(pool, mode, [], null, {})!);
   const [askedIds, setAskedIds] = useState<number[]>(() => []);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<InterviewFeedback | null>(null);
@@ -227,6 +237,7 @@ function Practice() {
               answer: given,
               ...(brief ? { jobBrief: brief } : {}),
               ...(resume ? { resume } : {}),
+              ...(promotion.isActive ? { promotion } : {}),
             },
           });
           const next = result.followUps[0]?.question;
@@ -256,6 +267,7 @@ function Practice() {
           tone,
           ...(brief ? { jobBrief: brief } : {}),
           ...(resume ? { resume } : {}),
+          ...(promotion.isActive ? { promotion } : {}),
         },
       });
       setFeedback(result);
@@ -271,7 +283,9 @@ function Practice() {
         score: result.score,
       });
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Something went wrong. Please try again.");
+      setError(
+        caught instanceof Error ? caught.message : "Something went wrong. Please try again.",
+      );
     } finally {
       setPending(false);
     }
@@ -279,6 +293,7 @@ function Practice() {
     answer,
     brief,
     resume,
+    promotion,
     activeQuestion,
     requestFeedback,
     requestFollowUps,
@@ -308,8 +323,8 @@ function Practice() {
 
   // Grade the whole mock interview once every question is answered.
   const gradedRef = useRef(false);
-  const gradingContextRef = useRef({ transcript, brief, resume, requestFeedback, tone });
-  gradingContextRef.current = { transcript, brief, resume, requestFeedback, tone };
+  const gradingContextRef = useRef({ transcript, brief, resume, promotion, requestFeedback, tone });
+  gradingContextRef.current = { transcript, brief, resume, promotion, requestFeedback, tone };
 
   useEffect(() => {
     if (!isMock || !finished || gradedRef.current) return;
@@ -329,6 +344,7 @@ function Practice() {
               tone: context.tone,
               ...(context.brief ? { jobBrief: context.brief } : {}),
               ...(context.resume ? { resume: context.resume } : {}),
+              ...(context.promotion.isActive ? { promotion: context.promotion } : {}),
             },
           });
           collected.push({
@@ -400,7 +416,11 @@ function Practice() {
   if (finished) {
     return (
       <div className="min-h-screen bg-background">
-        <SessionProgress answered={scores.length} total={sessionTotal} averageScore={averageScore} />
+        <SessionProgress
+          answered={scores.length}
+          total={sessionTotal}
+          averageScore={averageScore}
+        />
         <main className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
           <div className="animate-rise rounded-3xl border border-border bg-card p-8 text-center shadow-sm">
             <h1 className="font-display text-2xl font-semibold text-foreground sm:text-3xl">
