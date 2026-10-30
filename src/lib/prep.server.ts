@@ -17,7 +17,11 @@ import {
   type PanelReviewInput,
 } from "./prep-schema";
 
-type Ctx = { jobBrief?: JobBrief; resume?: Resume; promotion?: Promotion };
+type Ctx = {
+  jobBrief?: JobBrief | undefined;
+  resume?: Resume | undefined;
+  promotion?: Promotion | undefined;
+};
 
 function background(ctx: Ctx) {
   const lines: string[] = [];

@@ -11,7 +11,9 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AskThemRouteImport } from './routes/ask-them'
+import { Route as CheatSheetRouteImport } from './routes/cheat-sheet'
 import { Route as NegotiateRouteImport } from './routes/negotiate'
+import { Route as PanelRouteImport } from './routes/panel'
 import { Route as PracticeRouteImport } from './routes/practice'
 import { Route as StoriesRouteImport } from './routes/stories'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
@@ -27,9 +29,19 @@ const AskThemRoute = AskThemRouteImport.update({
   path: '/ask-them',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CheatSheetRoute = CheatSheetRouteImport.update({
+  id: '/cheat-sheet',
+  path: '/cheat-sheet',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NegotiateRoute = NegotiateRouteImport.update({
   id: '/negotiate',
   path: '/negotiate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PanelRoute = PanelRouteImport.update({
+  id: '/panel',
+  path: '/panel',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PracticeRoute = PracticeRouteImport.update({
@@ -56,7 +68,9 @@ const ApiTtsRoute = ApiTtsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ask-them': typeof AskThemRoute
+  '/cheat-sheet': typeof CheatSheetRoute
   '/negotiate': typeof NegotiateRoute
+  '/panel': typeof PanelRoute
   '/practice': typeof PracticeRoute
   '/stories': typeof StoriesRoute
   '/api/transcribe': typeof ApiTranscribeRoute
@@ -65,7 +79,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ask-them': typeof AskThemRoute
+  '/cheat-sheet': typeof CheatSheetRoute
   '/negotiate': typeof NegotiateRoute
+  '/panel': typeof PanelRoute
   '/practice': typeof PracticeRoute
   '/stories': typeof StoriesRoute
   '/api/transcribe': typeof ApiTranscribeRoute
@@ -75,7 +91,9 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/ask-them': typeof AskThemRoute
+  '/cheat-sheet': typeof CheatSheetRoute
   '/negotiate': typeof NegotiateRoute
+  '/panel': typeof PanelRoute
   '/practice': typeof PracticeRoute
   '/stories': typeof StoriesRoute
   '/api/transcribe': typeof ApiTranscribeRoute
@@ -86,7 +104,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/ask-them'
+    | '/cheat-sheet'
     | '/negotiate'
+    | '/panel'
     | '/practice'
     | '/stories'
     | '/api/transcribe'
@@ -95,7 +115,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/ask-them'
+    | '/cheat-sheet'
     | '/negotiate'
+    | '/panel'
     | '/practice'
     | '/stories'
     | '/api/transcribe'
@@ -104,7 +126,9 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/ask-them'
+    | '/cheat-sheet'
     | '/negotiate'
+    | '/panel'
     | '/practice'
     | '/stories'
     | '/api/transcribe'
@@ -114,7 +138,9 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AskThemRoute: typeof AskThemRoute
+  CheatSheetRoute: typeof CheatSheetRoute
   NegotiateRoute: typeof NegotiateRoute
+  PanelRoute: typeof PanelRoute
   PracticeRoute: typeof PracticeRoute
   StoriesRoute: typeof StoriesRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
@@ -137,11 +163,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AskThemRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/cheat-sheet': {
+      id: '/cheat-sheet'
+      path: '/cheat-sheet'
+      fullPath: '/cheat-sheet'
+      preLoaderRoute: typeof CheatSheetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/negotiate': {
       id: '/negotiate'
       path: '/negotiate'
       fullPath: '/negotiate'
       preLoaderRoute: typeof NegotiateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/panel': {
+      id: '/panel'
+      path: '/panel'
+      fullPath: '/panel'
+      preLoaderRoute: typeof PanelRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/practice': {
@@ -178,7 +218,9 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AskThemRoute: AskThemRoute,
+  CheatSheetRoute: CheatSheetRoute,
   NegotiateRoute: NegotiateRoute,
+  PanelRoute: PanelRoute,
   PracticeRoute: PracticeRoute,
   StoriesRoute: StoriesRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
