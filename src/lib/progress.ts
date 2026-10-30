@@ -1,3 +1,11 @@
+import {
+  loadAskQuestions,
+  loadStories,
+  mergeStories,
+  saveAskQuestions,
+  saveStories,
+} from "./prep-store";
+
 export type AnswerRecord = {
   at: string;
   question: string;
@@ -145,7 +153,8 @@ export function summarize(progress: Progress): ProgressSummary {
 }
 
 export function exportProgress(progress: Progress) {
-  const blob = new Blob([JSON.stringify(progress, null, 2)], { type: "application/json" });
+  const bundle = { ...progress, stories: loadStories(), askQuestions: loadAskQuestions() };
+  const blob = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;
@@ -172,8 +181,18 @@ export function mergeProgress(a: Progress, b: Progress): Progress {
 
 export async function readProgressFile(file: File): Promise<Progress> {
   const text = await file.text();
-  const parsed = normalize(JSON.parse(text));
-  if (!parsed.records.length) {
+  const json = JSON.parse(text) as { stories?: unknown; askQuestions?: unknown };
+  const parsed = normalize(json);
+  const stories = Array.isArray(json.stories) ? mergeStories(loadStories(), json.stories) : null;
+  if (stories) saveStories(stories);
+  if (Array.isArray(json.askQuestions)) {
+    const merged = new Set([
+      ...loadAskQuestions(),
+      ...json.askQuestions.filter((q) => typeof q === "string"),
+    ]);
+    saveAskQuestions([...merged]);
+  }
+  if (!parsed.records.length && !stories?.length) {
     throw new Error("That file doesn't contain any practice history.");
   }
   return parsed;

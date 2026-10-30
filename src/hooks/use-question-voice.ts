@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const MUTE_KEY = "coach-voice-muted";
 
-export type Tone = "warm" | "tough";
+export type Tone = "warm" | "tough" | "manager" | "hr" | "peer";
 
 /**
  * Plays interview questions aloud through the AI voice, with a persisted mute
