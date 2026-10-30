@@ -52,7 +52,9 @@ function CheatSheet() {
 
   return (
     <ToolPage
-      title={brief ? `Cheat sheet: ${brief.title} at ${brief.company}` : "Your interview cheat sheet"}
+      title={
+        brief ? `Cheat sheet: ${brief.title} at ${brief.company}` : "Your interview cheat sheet"
+      }
       intro="Everything you've prepared, on one page. Print it or save it as a PDF and read it the night before."
     >
       <Button className="mb-6 rounded-full print:hidden" onClick={() => window.print()}>

@@ -99,7 +99,10 @@ function Panel() {
 
   if (finished) {
     return (
-      <ToolPage title="Panel debrief" intro="Here's how each panelist likely walked out of the room.">
+      <ToolPage
+        title="Panel debrief"
+        intro="Here's how each panelist likely walked out of the room."
+      >
         {pending ? (
           <p className="flex items-center justify-center gap-2 text-muted-foreground">
             <Loader2 className="size-4 animate-spin" aria-hidden /> The panel is comparing notes…
@@ -110,7 +113,10 @@ function Panel() {
               {review.overall}
             </p>
             {review.panelists.map((p) => (
-              <div key={p.panelist} className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+              <div
+                key={p.panelist}
+                className="rounded-3xl border border-border bg-card p-6 shadow-sm"
+              >
                 <div className="flex items-center justify-between gap-3">
                   <h2 className="flex items-center gap-2 font-semibold text-foreground">
                     {p.concernAddressed ? (
@@ -120,7 +126,9 @@ function Panel() {
                     )}
                     {panelistName(p.panelist)}
                   </h2>
-                  <span className="font-display text-lg font-semibold">{Math.round(p.score)}/10</span>
+                  <span className="font-display text-lg font-semibold">
+                    {Math.round(p.score)}/10
+                  </span>
                 </div>
                 <p className="mt-2 text-sm text-muted-foreground">
                   {p.concernAddressed ? "Concern addressed" : "Concern not yet addressed"}:{" "}
