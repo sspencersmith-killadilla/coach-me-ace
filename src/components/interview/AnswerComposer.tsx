@@ -10,6 +10,8 @@ type Props = {
   onSubmit: () => void;
   onSkip: () => void;
   pending: boolean;
+  /** Optional answer time limit in seconds for timed drills. */
+  timeLimit?: number;
 };
 
 function formatSeconds(total: number) {
@@ -62,7 +64,7 @@ async function transcribeSegment(blob: Blob, onDelta: (text: string) => void) {
   return full.trim();
 }
 
-export function AnswerComposer({ value, onChange, onSubmit, onSkip, pending }: Props) {
+export function AnswerComposer({ value, onChange, onSubmit, onSkip, pending, timeLimit }: Props) {
   const valueRef = useRef(value);
   valueRef.current = value;
 
@@ -112,6 +114,19 @@ export function AnswerComposer({ value, onChange, onSubmit, onSkip, pending }: P
     if (pending && recording) stop();
   }, [pending, recording, stop]);
 
+  // Timed drill: the clock starts the moment the user begins answering.
+  const [drillStarted, setDrillStarted] = useState(false);
+  const [drillElapsed, setDrillElapsed] = useState(0);
+  useEffect(() => {
+    if (timeLimit && !drillStarted && (recording || value.trim())) setDrillStarted(true);
+  }, [timeLimit, drillStarted, recording, value]);
+  useEffect(() => {
+    if (!timeLimit || !drillStarted || pending) return;
+    const id = setInterval(() => setDrillElapsed((previous) => previous + 1), 1000);
+    return () => clearInterval(id);
+  }, [timeLimit, drillStarted, pending]);
+  const drillRemaining = timeLimit ? timeLimit - drillElapsed : null;
+
   const meterWidth = Math.min(100, Math.round(level * 260));
 
   const liveWords = value.trim() ? value.trim().split(/\s+/).length : 0;
@@ -131,8 +146,42 @@ export function AnswerComposer({ value, onChange, onSubmit, onSkip, pending }: P
   return (
     <div className="animate-rise rounded-3xl border border-border bg-card p-5 shadow-sm sm:p-6">
       <label htmlFor="answer" className="text-sm font-medium text-muted-foreground">
-        Your answer — speak it out loud or type it. There's no timer here.
+        {timeLimit
+          ? `Your answer — land your point in ${timeLimit} seconds. The clock starts when you begin.`
+          : "Your answer — speak it out loud or type it. There's no timer here."}
       </label>
+      {drillRemaining != null ? (
+        <div className="mt-3" aria-live="polite">
+          <div className="flex items-center justify-between text-sm">
+            <span
+              className={`font-semibold tabular-nums ${
+                drillRemaining <= 0
+                  ? "text-destructive"
+                  : drillRemaining <= 15
+                    ? "text-warm-foreground"
+                    : "text-foreground"
+              }`}
+            >
+              {drillRemaining > 0 ? formatSeconds(drillRemaining) : "Time's up"}
+            </span>
+            <span className="text-muted-foreground">
+              {!drillStarted
+                ? "Waiting for you to start"
+                : drillRemaining <= 0
+                  ? "Wrap up in one sentence and submit."
+                  : drillRemaining <= 15
+                    ? "Start landing the result now."
+                    : "On the clock"}
+            </span>
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+            <div
+              className={`h-full rounded-full transition-all ${drillRemaining <= 15 ? "bg-destructive" : "bg-primary"}`}
+              style={{ width: `${Math.max(0, (drillRemaining / (timeLimit ?? 1)) * 100)}%` }}
+            />
+          </div>
+        </div>
+      ) : null}
       <Textarea
         id="answer"
         value={value}
