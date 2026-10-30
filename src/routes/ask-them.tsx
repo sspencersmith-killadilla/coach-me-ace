@@ -50,9 +50,7 @@ function AskThem() {
     setPending(true);
     setError(null);
     try {
-      setResult(
-        await request({ data: { ...context, drafts: drafts.filter((d) => d.trim()) } }),
-      );
+      setResult(await request({ data: { ...context, drafts: drafts.filter((d) => d.trim()) } }));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Something went wrong.");
     } finally {
@@ -90,7 +88,11 @@ function AskThem() {
           ))}
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
-          <Button variant="outline" className="rounded-full" onClick={() => updateDrafts([...drafts, ""])}>
+          <Button
+            variant="outline"
+            className="rounded-full"
+            onClick={() => updateDrafts([...drafts, ""])}
+          >
             <Plus className="size-4" aria-hidden /> Add a question
           </Button>
           <Button className="rounded-full" onClick={run} disabled={pending}>
@@ -105,7 +107,10 @@ function AskThem() {
         <section className="mt-6 space-y-3">
           <h2 className="font-display text-xl font-semibold text-foreground">How yours land</h2>
           {result.graded.map((item) => (
-            <div key={item.question} className="rounded-3xl border border-border bg-card p-5 shadow-sm">
+            <div
+              key={item.question}
+              className="rounded-3xl border border-border bg-card p-5 shadow-sm"
+            >
               <div className="flex items-baseline justify-between gap-3">
                 <p className="font-medium text-foreground">{item.question}</p>
                 <span className="font-display text-lg font-semibold text-primary">
@@ -124,17 +129,20 @@ function AskThem() {
 
       {result?.suggestions.length ? (
         <section className="mt-6 space-y-3">
-          <h2 className="font-display text-xl font-semibold text-foreground">Questions worth asking</h2>
+          <h2 className="font-display text-xl font-semibold text-foreground">
+            Questions worth asking
+          </h2>
           {result.suggestions.map((item) => (
-            <div key={item.question} className="rounded-3xl border border-border bg-card p-5 shadow-sm">
+            <div
+              key={item.question}
+              className="rounded-3xl border border-border bg-card p-5 shadow-sm"
+            >
               <p className="font-medium text-foreground">{item.question}</p>
               <p className="mt-1 text-sm text-muted-foreground">{item.whyItLands}</p>
               <Button
                 variant="link"
                 className="h-auto p-0 text-sm"
-                onClick={() =>
-                  updateDrafts([...drafts.filter((d) => d.trim()), item.question])
-                }
+                onClick={() => updateDrafts([...drafts.filter((d) => d.trim()), item.question])}
               >
                 Add to my list
               </Button>

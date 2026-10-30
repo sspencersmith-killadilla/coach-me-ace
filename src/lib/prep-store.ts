@@ -57,7 +57,9 @@ function write(key: string, value: unknown) {
 
 function isStory(value: unknown): value is Story {
   const s = value as Partial<Story> | null;
-  return !!s && typeof s.id === "string" && typeof s.title === "string" && typeof s.text === "string";
+  return (
+    !!s && typeof s.id === "string" && typeof s.title === "string" && typeof s.text === "string"
+  );
 }
 
 export function loadStories(): Story[] {
@@ -90,7 +92,8 @@ export function mergeStories(a: Story[], b: Story[]): Story[] {
 /** Tag → number of stories covering it; tags with 0 are gaps. */
 export function tagCoverage(stories: Story[]): Record<string, number> {
   const coverage: Record<string, number> = Object.fromEntries(STORY_TAGS.map((t) => [t, 0]));
-  for (const story of stories) for (const tag of story.tags) coverage[tag] = (coverage[tag] ?? 0) + 1;
+  for (const story of stories)
+    for (const tag of story.tags) coverage[tag] = (coverage[tag] ?? 0) + 1;
   return coverage;
 }
 

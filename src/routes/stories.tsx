@@ -52,7 +52,9 @@ function Stories() {
             <span
               key={tag}
               className={`rounded-full px-3 py-1 text-sm ${
-                coverage[tag] ? "bg-primary text-primary-foreground" : "bg-warm text-warm-foreground"
+                coverage[tag]
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-warm text-warm-foreground"
               }`}
             >
               {tag} · {coverage[tag] ?? 0}
@@ -91,9 +93,7 @@ function Stories() {
                 key={tag}
                 type="button"
                 aria-pressed={active}
-                onClick={() =>
-                  setTags((p) => (active ? p.filter((v) => v !== tag) : [...p, tag]))
-                }
+                onClick={() => setTags((p) => (active ? p.filter((v) => v !== tag) : [...p, tag]))}
                 className={`rounded-full border px-3 py-1 text-sm ${
                   active
                     ? "border-primary bg-primary text-primary-foreground"
@@ -134,17 +134,26 @@ function Stories() {
         {stories.length === 0 ? (
           <p className="text-center text-muted-foreground">
             No stories yet. After any answer in{" "}
-            <Link to="/practice" search={{ mode: "random", count: 5, cats: "", tone: "warm" }} className="underline">
+            <Link
+              to="/practice"
+              search={{ mode: "random", count: 5, cats: "", tone: "warm" }}
+              className="underline"
+            >
               practice
             </Link>
             , tap "Save this answer as a story".
           </p>
         ) : (
           stories.map((story) => (
-            <article key={story.id} className="rounded-3xl border border-border bg-card p-6 shadow-sm">
+            <article
+              key={story.id}
+              className="rounded-3xl border border-border bg-card p-6 shadow-sm"
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h3 className="font-display text-lg font-semibold text-foreground">{story.title}</h3>
+                  <h3 className="font-display text-lg font-semibold text-foreground">
+                    {story.title}
+                  </h3>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {story.tags.join(" · ")}
                     {story.score != null ? ` · scored ${story.score}/10` : ""}
@@ -160,9 +169,13 @@ function Stories() {
                 </Button>
               </div>
               {story.sourceQuestion ? (
-                <p className="mt-3 text-sm italic text-muted-foreground">“{story.sourceQuestion}”</p>
+                <p className="mt-3 text-sm italic text-muted-foreground">
+                  “{story.sourceQuestion}”
+                </p>
               ) : null}
-              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-foreground">{story.text}</p>
+              <p className="mt-3 whitespace-pre-line text-sm leading-relaxed text-foreground">
+                {story.text}
+              </p>
             </article>
           ))
         )}

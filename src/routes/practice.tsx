@@ -453,7 +453,10 @@ function Practice() {
                 <Link to="/">Back to start</Link>
               </Button>
               <Button asChild variant="secondary" size="lg" className="rounded-full px-7">
-                <Link to="/practice" search={{ mode, count, cats, tone, ...(limit ? { limit } : {}) }}>
+                <Link
+                  to="/practice"
+                  search={{ mode, count, cats, tone, ...(limit ? { limit } : {}) }}
+                >
                   <RotateCcw className="size-4" aria-hidden />
                   Start another round
                 </Link>
@@ -520,33 +523,33 @@ function Practice() {
             </div>
           ) : feedback ? (
             <>
-            {firstAttempt ? (
-              <AttemptComparison first={firstAttempt} second={{ answer, feedback }} />
-            ) : null}
-            <FeedbackCard
-              feedback={feedback}
-              question={activeQuestion}
-              answer={answer}
-              jobBrief={brief}
-              resume={resume}
-              confidence={confidence}
-              tone={tone}
-              {...(seededHistory && historyFillerRate != null
-                ? { previousFillerRate: historyFillerRate, previousFillerLabel: "your history" }
-                : {})}
-              onConfidence={noteConfidence}
-              onRetry={retry}
-              onNext={advance}
-              onPracticeFollowUp={practiceFollowUp}
-            />
-            <div className="mt-6">
-              <SaveStory
-                key={`${activeQuestion}-${feedback.score}`}
+              {firstAttempt ? (
+                <AttemptComparison first={firstAttempt} second={{ answer, feedback }} />
+              ) : null}
+              <FeedbackCard
+                feedback={feedback}
                 question={activeQuestion}
                 answer={answer}
-                score={feedback.score}
+                jobBrief={brief}
+                resume={resume}
+                confidence={confidence}
+                tone={tone}
+                {...(seededHistory && historyFillerRate != null
+                  ? { previousFillerRate: historyFillerRate, previousFillerLabel: "your history" }
+                  : {})}
+                onConfidence={noteConfidence}
+                onRetry={retry}
+                onNext={advance}
+                onPracticeFollowUp={practiceFollowUp}
               />
-            </div>
+              <div className="mt-6">
+                <SaveStory
+                  key={`${activeQuestion}-${feedback.score}`}
+                  question={activeQuestion}
+                  answer={answer}
+                  score={feedback.score}
+                />
+              </div>
             </>
           ) : (
             <>

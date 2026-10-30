@@ -15,7 +15,8 @@ const VOICES = {
   },
   manager: {
     voice: "echo",
-    instructions: "Speak like a direct, results-focused hiring manager. Brisk, practical, mildly impatient.",
+    instructions:
+      "Speak like a direct, results-focused hiring manager. Brisk, practical, mildly impatient.",
   },
   hr: {
     voice: "nova",

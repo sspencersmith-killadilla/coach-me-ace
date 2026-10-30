@@ -1,4 +1,10 @@
-import { loadAskQuestions, loadStories, mergeStories, saveAskQuestions, saveStories } from "./prep-store";
+import {
+  loadAskQuestions,
+  loadStories,
+  mergeStories,
+  saveAskQuestions,
+  saveStories,
+} from "./prep-store";
 
 export type AnswerRecord = {
   at: string;
@@ -180,7 +186,10 @@ export async function readProgressFile(file: File): Promise<Progress> {
   const stories = Array.isArray(json.stories) ? mergeStories(loadStories(), json.stories) : null;
   if (stories) saveStories(stories);
   if (Array.isArray(json.askQuestions)) {
-    const merged = new Set([...loadAskQuestions(), ...json.askQuestions.filter((q) => typeof q === "string")]);
+    const merged = new Set([
+      ...loadAskQuestions(),
+      ...json.askQuestions.filter((q) => typeof q === "string"),
+    ]);
     saveAskQuestions([...merged]);
   }
   if (!parsed.records.length && !stories?.length) {

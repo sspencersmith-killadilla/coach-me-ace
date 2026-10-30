@@ -64,8 +64,10 @@ function Welcome() {
   const [count, setCount] = useState(QUESTION_COUNT);
   const [selected, setSelected] = useState<string[]>([]);
   const [tone, setTone] = useState<"warm" | "tough">("warm");
+  const [limit, setLimit] = useState(0);
 
   const cats = selected.join(",");
+  const lim = limit ? { limit } : {};
 
   const available = useMemo(
     () =>
@@ -101,12 +103,12 @@ function Welcome() {
 
           <div className="mt-9 flex flex-wrap justify-center gap-3">
             <Button asChild size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "random", count, cats, tone }}>
+              <Link to="/practice" search={{ mode: "random", count, cats, tone, ...lim }}>
                 Start interview
               </Link>
             </Button>
             <Button asChild variant="secondary" size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "sequential", count, cats, tone }}>
+              <Link to="/practice" search={{ mode: "sequential", count, cats, tone, ...lim }}>
                 Go in order instead
               </Link>
             </Button>
@@ -114,19 +116,19 @@ function Welcome() {
 
           <div className="mt-3 flex flex-wrap justify-center gap-3">
             <Button asChild variant="outline" size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "weakest", count, cats, tone }}>
+              <Link to="/practice" search={{ mode: "weakest", count, cats, tone, ...lim }}>
                 <Target className="size-4" aria-hidden />
                 Focus my weak spots
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "mock", count, cats, tone }}>
+              <Link to="/practice" search={{ mode: "mock", count, cats, tone, ...lim }}>
                 <Timer className="size-4" aria-hidden />
                 Run a full mock interview
               </Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="rounded-full px-7">
-              <Link to="/practice" search={{ mode: "promotion", count, cats, tone }}>
+              <Link to="/practice" search={{ mode: "promotion", count, cats, tone, ...lim }}>
                 <Award className="size-4" aria-hidden />
                 Practice a promotion interview
               </Link>
@@ -182,6 +184,26 @@ function Welcome() {
               ))}
             </div>
           </div>
+          <div className="mx-auto mt-4 flex w-fit flex-col items-center gap-2 rounded-3xl border border-border bg-card p-4 shadow-sm sm:flex-row">
+            <span className="text-sm font-medium text-foreground">Answer timer:</span>
+            <div className="flex rounded-full bg-muted p-1">
+              {[0, 60, 90, 120].map((value) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setLimit(value)}
+                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                    limit === value
+                      ? "bg-background text-foreground shadow-sm"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {value ? `${value}s` : "Off"}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <p className="mx-auto mt-3 max-w-md text-sm text-muted-foreground">
             {tone === "tough"
               ? "Same rubric, colder delivery: stricter scores, blunt critique, and a voice that isn't charmed by your STAR story."
@@ -228,6 +250,53 @@ function Welcome() {
             </div>
           </div>
         </div>
+        <section className="mt-10 rounded-3xl border border-border bg-card p-6 shadow-sm">
+          <h2 className="font-display text-xl font-semibold text-foreground">Prep toolkit</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            The parts of the interview most people forget to practice.
+          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {(
+              [
+                {
+                  to: "/panel",
+                  title: "Panel interview",
+                  body: "Three interviewers, three agendas.",
+                },
+                {
+                  to: "/stories",
+                  title: "Story bank",
+                  body: "Your best stories, tagged, with gaps.",
+                },
+                {
+                  to: "/ask-them",
+                  title: "Questions to ask them",
+                  body: "Finish strong with sharp questions.",
+                },
+                {
+                  to: "/negotiate",
+                  title: "Salary practice",
+                  body: "Role-play the offer conversation.",
+                },
+                {
+                  to: "/cheat-sheet",
+                  title: "Day-before cheat sheet",
+                  body: "Everything on one printable page.",
+                },
+              ] as const
+            ).map((tool) => (
+              <Link
+                key={tool.to}
+                to={tool.to}
+                className="rounded-2xl border border-border p-4 transition-colors hover:border-primary/50 hover:bg-muted"
+              >
+                <span className="font-semibold text-foreground">{tool.title}</span>
+                <span className="mt-1 block text-sm text-muted-foreground">{tool.body}</span>
+              </Link>
+            ))}
+          </div>
+        </section>
+
         <ProgressCard />
 
         <JobPostingUpload />

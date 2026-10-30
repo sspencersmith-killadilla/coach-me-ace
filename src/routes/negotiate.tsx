@@ -29,7 +29,11 @@ export const Route = createFileRoute("/negotiate")({
   component: Negotiate,
 });
 
-type Line = { speaker: "recruiter" | "candidate"; text: string; coaching?: NegotiationTurn["coaching"] };
+type Line = {
+  speaker: "recruiter" | "candidate";
+  text: string;
+  coaching?: NegotiationTurn["coaching"];
+};
 
 function Negotiate() {
   const request = useServerFn(getNegotiationTurn);
@@ -54,7 +58,11 @@ function Negotiate() {
       const result = await request({
         data: {
           ...context,
-          setup: { role: roleName, target: target.trim(), ...(floor.trim() ? { floor: floor.trim() } : {}) },
+          setup: {
+            role: roleName,
+            target: target.trim(),
+            ...(floor.trim() ? { floor: floor.trim() } : {}),
+          },
           transcript: history.map(({ speaker, text }) => ({ speaker, text })),
         },
       });
@@ -81,17 +89,36 @@ function Negotiate() {
         <div className="space-y-4 rounded-3xl border border-border bg-card p-6 shadow-sm">
           <label className="block text-sm font-medium text-foreground">
             Role
-            <Input className="mt-1.5" value={role} onChange={(e) => setRole(e.target.value)} placeholder={brief?.title ?? "e.g. Program Manager"} />
+            <Input
+              className="mt-1.5"
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              placeholder={brief?.title ?? "e.g. Program Manager"}
+            />
           </label>
           <label className="block text-sm font-medium text-foreground">
             Your target
-            <Input className="mt-1.5" value={target} onChange={(e) => setTarget(e.target.value)} placeholder="e.g. $95,000" />
+            <Input
+              className="mt-1.5"
+              value={target}
+              onChange={(e) => setTarget(e.target.value)}
+              placeholder="e.g. $95,000"
+            />
           </label>
           <label className="block text-sm font-medium text-foreground">
             Your walk-away number (optional)
-            <Input className="mt-1.5" value={floor} onChange={(e) => setFloor(e.target.value)} placeholder="e.g. $85,000" />
+            <Input
+              className="mt-1.5"
+              value={floor}
+              onChange={(e) => setFloor(e.target.value)}
+              placeholder="e.g. $85,000"
+            />
           </label>
-          <Button className="rounded-full" disabled={!target.trim() || pending} onClick={() => void turn([])}>
+          <Button
+            className="rounded-full"
+            disabled={!target.trim() || pending}
+            onClick={() => void turn([])}
+          >
             {pending ? <Loader2 className="size-4 animate-spin" aria-hidden /> : null}
             Start the conversation
           </Button>
@@ -135,7 +162,13 @@ function Negotiate() {
           <div className="rounded-3xl border border-border bg-card p-6 text-center shadow-sm">
             <h2 className="font-display text-xl font-semibold text-foreground">Where you landed</h2>
             <p className="mt-2 text-muted-foreground">{outcome}</p>
-            <Button className="mt-4 rounded-full" onClick={() => { setLines([]); setOutcome(null); }}>
+            <Button
+              className="mt-4 rounded-full"
+              onClick={() => {
+                setLines([]);
+                setOutcome(null);
+              }}
+            >
               <RotateCcw className="size-4" aria-hidden /> Run it again
             </Button>
           </div>
