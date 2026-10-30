@@ -13,6 +13,18 @@ const VOICES = {
     instructions:
       "Speak like a cool, unimpressed senior panelist. Flat, measured, slightly clipped. Professional but not friendly. No warmth, no smile.",
   },
+  manager: {
+    voice: "echo",
+    instructions: "Speak like a direct, results-focused hiring manager. Brisk, practical, mildly impatient.",
+  },
+  hr: {
+    voice: "nova",
+    instructions: "Speak like a warm but probing HR partner. Calm, attentive, curious.",
+  },
+  peer: {
+    voice: "fable",
+    instructions: "Speak like a relaxed future teammate. Casual, friendly, conversational.",
+  },
 } as const;
 
 export const Route = createFileRoute("/api/tts")({
@@ -39,7 +51,10 @@ export const Route = createFileRoute("/api/tts")({
         if (!text) {
           return Response.json({ error: "Nothing to read aloud." }, { status: 400 });
         }
-        const tone = payload.tone === "tough" ? "tough" : "warm";
+        const tone =
+          typeof payload.tone === "string" && payload.tone in VOICES
+            ? (payload.tone as keyof typeof VOICES)
+            : "warm";
         const persona = VOICES[tone];
 
         const upstream = await fetch("https://ai.gateway.lovable.dev/v1/audio/speech", {
