@@ -3,7 +3,9 @@ import { useServerFn } from "@tanstack/react-start";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, Loader2, RotateCcw, Timer } from "lucide-react";
 import { AnswerComposer } from "@/components/interview/AnswerComposer";
+import { AttemptComparison } from "@/components/interview/AttemptComparison";
 import { FeedbackCard } from "@/components/interview/FeedbackCard";
+import { SaveStory } from "@/components/interview/SaveStory";
 import { MockRecap, type MockResult } from "@/components/interview/MockRecap";
 import { QuestionCard } from "@/components/interview/QuestionCard";
 import { SessionProgress } from "@/components/interview/SessionProgress";
@@ -34,20 +36,24 @@ import { getInterviewFeedback, type InterviewFeedback } from "@/lib/feedback.fun
 import { getFollowUps } from "@/lib/follow-ups.functions";
 
 const SESSION_OPTIONS = [5, 10, 20, QUESTION_COUNT];
+const TIME_LIMITS = [60, 90, 120];
 const MODES: Mode[] = ["random", "sequential", "weakest", "mock", "promotion"];
 type Tone = "warm" | "tough";
 
 export const Route = createFileRoute("/practice")({
   validateSearch: (
     search: Record<string, unknown>,
-  ): { mode: Mode; count: number; cats: string; tone: Tone } => {
+  ): { mode: Mode; count: number; cats: string; tone: Tone; limit?: number } => {
     const rawMode = String(search["mode"] ?? "");
     const mode = (MODES as string[]).includes(rawMode) ? (rawMode as Mode) : "random";
     const rawCount = Number(search["count"]);
     const count = SESSION_OPTIONS.includes(rawCount) ? rawCount : QUESTION_COUNT;
     const cats = typeof search["cats"] === "string" ? search["cats"] : "";
     const tone: Tone = search["tone"] === "tough" ? "tough" : "warm";
-    return { mode, count, cats, tone };
+    const rawLimit = Number(search["limit"]);
+    return TIME_LIMITS.includes(rawLimit)
+      ? { mode, count, cats, tone, limit: rawLimit }
+      : { mode, count, cats, tone };
   },
   head: () => ({
     meta: [
@@ -89,7 +95,7 @@ type TranscriptEntry = {
 };
 
 function Practice() {
-  const { mode, count, cats, tone } = Route.useSearch();
+  const { mode, count, cats, tone, limit } = Route.useSearch();
   const requestFeedback = useServerFn(getInterviewFeedback);
   const requestFollowUps = useServerFn(getFollowUps);
   const { brief } = useJobBrief();
@@ -110,6 +116,10 @@ function Practice() {
   const [askedIds, setAskedIds] = useState<number[]>(() => []);
   const [answer, setAnswer] = useState("");
   const [feedback, setFeedback] = useState<InterviewFeedback | null>(null);
+  const [firstAttempt, setFirstAttempt] = useState<{
+    answer: string;
+    feedback: InterviewFeedback;
+  } | null>(null);
   const [confidence, setConfidence] = useState<number | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -203,6 +213,7 @@ function Practice() {
 
   const advance = useCallback(() => {
     setFeedback(null);
+    setFirstAttempt(null);
     setConfidence(null);
     setError(null);
     setAnswer("");
@@ -313,12 +324,14 @@ function Practice() {
   ]);
 
   const retry = useCallback(() => {
+    if (feedback) setFirstAttempt((previous) => previous ?? { answer, feedback });
     setFeedback(null);
     setConfidence(null);
     setError(null);
-  }, []);
+  }, [feedback, answer]);
 
   const practiceFollowUp = useCallback((followUp: string) => {
+    setFirstAttempt(null);
     setFollowUpQuestion(followUp);
     setFeedback(null);
     setConfidence(null);
@@ -440,7 +453,7 @@ function Practice() {
                 <Link to="/">Back to start</Link>
               </Button>
               <Button asChild variant="secondary" size="lg" className="rounded-full px-7">
-                <Link to="/practice" search={{ mode, count, cats, tone }}>
+                <Link to="/practice" search={{ mode, count, cats, tone, ...(limit ? { limit } : {}) }}>
                   <RotateCcw className="size-4" aria-hidden />
                   Start another round
                 </Link>
@@ -506,6 +519,10 @@ function Practice() {
               </p>
             </div>
           ) : feedback ? (
+            <>
+            {firstAttempt ? (
+              <AttemptComparison first={firstAttempt} second={{ answer, feedback }} />
+            ) : null}
             <FeedbackCard
               feedback={feedback}
               question={activeQuestion}
@@ -522,6 +539,15 @@ function Practice() {
               onNext={advance}
               onPracticeFollowUp={practiceFollowUp}
             />
+            <div className="mt-6">
+              <SaveStory
+                key={`${activeQuestion}-${feedback.score}`}
+                question={activeQuestion}
+                answer={answer}
+                score={feedback.score}
+              />
+            </div>
+            </>
           ) : (
             <>
               {error ? (
@@ -540,6 +566,8 @@ function Practice() {
                 </div>
               ) : null}
               <AnswerComposer
+                key={`${activeQuestion}-${scores.length}-${transcript.length}`}
+                {...(limit ? { timeLimit: limit } : {})}
                 value={answer}
                 onChange={setAnswer}
                 onSubmit={submit}
