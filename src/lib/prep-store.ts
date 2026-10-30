@@ -18,7 +18,8 @@ export const CATEGORY_TAGS: Record<string, string[]> = {
   "Teamwork & Leadership": ["Leadership", "Teamwork", "Conflict"],
   Accomplishments: ["Results & impact", "Initiative"],
   "Problem Solving": ["Problem solving", "Pressure & deadlines"],
-  "Setbacks & Growth": ["Failure & learning"],
+  "Setbacks & Criticism": ["Failure & learning", "Conflict"],
+  "Motivation & Fit": ["Customer focus", "Initiative"],
   "Skills & Work Style": ["Communication", "Pressure & deadlines"],
 };
 
