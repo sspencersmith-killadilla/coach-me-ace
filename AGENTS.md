@@ -10,3 +10,7 @@
 > the editor, so keep the branch in a working state.
 
 <!-- LOVABLE:END -->
+
+## Project rules
+- Prep tools (story bank, ask-them, negotiation, panel, cheat sheet) share one AI module (`src/lib/prep.server.ts` + `prep.functions.ts`) so prompts and error handling stay consistent.
+- Story bank and saved questions live in localStorage (`src/lib/prep-store.ts`) and travel in the progress export file — no server storage, to keep the "nothing on our servers" promise.
