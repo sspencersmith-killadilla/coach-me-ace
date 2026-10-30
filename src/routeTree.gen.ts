@@ -10,7 +10,10 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AskThemRouteImport } from './routes/ask-them'
+import { Route as NegotiateRouteImport } from './routes/negotiate'
 import { Route as PracticeRouteImport } from './routes/practice'
+import { Route as StoriesRouteImport } from './routes/stories'
 import { Route as ApiTranscribeRouteImport } from './routes/api/transcribe'
 import { Route as ApiTtsRouteImport } from './routes/api/tts'
 
@@ -19,9 +22,24 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AskThemRoute = AskThemRouteImport.update({
+  id: '/ask-them',
+  path: '/ask-them',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NegotiateRoute = NegotiateRouteImport.update({
+  id: '/negotiate',
+  path: '/negotiate',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PracticeRoute = PracticeRouteImport.update({
   id: '/practice',
   path: '/practice',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StoriesRoute = StoriesRouteImport.update({
+  id: '/stories',
+  path: '/stories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApiTranscribeRoute = ApiTranscribeRouteImport.update({
@@ -37,34 +55,68 @@ const ApiTtsRoute = ApiTtsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/ask-them': typeof AskThemRoute
+  '/negotiate': typeof NegotiateRoute
   '/practice': typeof PracticeRoute
+  '/stories': typeof StoriesRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/api/tts': typeof ApiTtsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/ask-them': typeof AskThemRoute
+  '/negotiate': typeof NegotiateRoute
   '/practice': typeof PracticeRoute
+  '/stories': typeof StoriesRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/api/tts': typeof ApiTtsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/ask-them': typeof AskThemRoute
+  '/negotiate': typeof NegotiateRoute
   '/practice': typeof PracticeRoute
+  '/stories': typeof StoriesRoute
   '/api/transcribe': typeof ApiTranscribeRoute
   '/api/tts': typeof ApiTtsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/practice' | '/api/transcribe' | '/api/tts'
+  fullPaths:
+    | '/'
+    | '/ask-them'
+    | '/negotiate'
+    | '/practice'
+    | '/stories'
+    | '/api/transcribe'
+    | '/api/tts'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/practice' | '/api/transcribe' | '/api/tts'
-  id: '__root__' | '/' | '/practice' | '/api/transcribe' | '/api/tts'
+  to:
+    | '/'
+    | '/ask-them'
+    | '/negotiate'
+    | '/practice'
+    | '/stories'
+    | '/api/transcribe'
+    | '/api/tts'
+  id:
+    | '__root__'
+    | '/'
+    | '/ask-them'
+    | '/negotiate'
+    | '/practice'
+    | '/stories'
+    | '/api/transcribe'
+    | '/api/tts'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AskThemRoute: typeof AskThemRoute
+  NegotiateRoute: typeof NegotiateRoute
   PracticeRoute: typeof PracticeRoute
+  StoriesRoute: typeof StoriesRoute
   ApiTranscribeRoute: typeof ApiTranscribeRoute
   ApiTtsRoute: typeof ApiTtsRoute
 }
@@ -78,11 +130,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ask-them': {
+      id: '/ask-them'
+      path: '/ask-them'
+      fullPath: '/ask-them'
+      preLoaderRoute: typeof AskThemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/negotiate': {
+      id: '/negotiate'
+      path: '/negotiate'
+      fullPath: '/negotiate'
+      preLoaderRoute: typeof NegotiateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/practice': {
       id: '/practice'
       path: '/practice'
       fullPath: '/practice'
       preLoaderRoute: typeof PracticeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/stories': {
+      id: '/stories'
+      path: '/stories'
+      fullPath: '/stories'
+      preLoaderRoute: typeof StoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/api/transcribe': {
@@ -104,7 +177,10 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AskThemRoute: AskThemRoute,
+  NegotiateRoute: NegotiateRoute,
   PracticeRoute: PracticeRoute,
+  StoriesRoute: StoriesRoute,
   ApiTranscribeRoute: ApiTranscribeRoute,
   ApiTtsRoute: ApiTtsRoute,
 }

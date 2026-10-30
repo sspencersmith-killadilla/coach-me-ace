@@ -29,7 +29,3 @@ export function ToolPage({
     </div>
   );
 }
-
-export function useCoachContext() {
-  return null;
-}
