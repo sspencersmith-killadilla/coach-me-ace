@@ -1,7 +1,7 @@
 import { NoObjectGeneratedError, Output, streamText } from "ai";
 import type { z } from "zod";
 import { createLovableAiGatewayProvider } from "./ai-gateway.server";
-import { RESUME_SYSTEM_PROMPT, ResumeInput, ResumeSchema, type Resume } from "./resume";
+import { RESUME_SYSTEM_PROMPT, ResumeInput, ResumeParseSchema, type Resume } from "./resume";
 
 type Input = z.infer<typeof ResumeInput>;
 
@@ -52,11 +52,13 @@ export async function parseResume(data: Input): Promise<Resume> {
     const result = streamText({
       model: gateway("google/gemini-3.6-flash"),
       system: RESUME_SYSTEM_PROMPT,
-      output: Output.object({ schema: ResumeSchema }),
+      output: Output.object({ schema: ResumeParseSchema }),
       messages: [{ role: "user", content: buildParts(data) as never }],
     });
 
-    return (await result.output) as Resume;
+    const output = (await result.output) as Resume;
+    const pasted = data.text?.trim();
+    return { ...output, sourceText: (pasted || output.sourceText || "").slice(0, 40000) };
   } catch (error) {
     if (NoObjectGeneratedError.isInstance(error)) {
       throw new Error("We couldn't make sense of that document. Try pasting the text instead.");
