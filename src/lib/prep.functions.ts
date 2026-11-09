@@ -1,6 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
-import { AskQuestionsInput, NegotiationTurnInput, PanelReviewInput } from "./prep-schema";
-import { generateAskQuestions, generateNegotiationTurn, generatePanelReview } from "./prep.server";
+import { AskQuestionsInput, NegotiationTurnInput, PanelReviewInput, ResumeTailorInput } from "./prep-schema";
+import { generateAskQuestions, generateNegotiationTurn, generatePanelReview, generateResumeTailoring } from "./prep.server";
 
 export const getAskQuestions = createServerFn({ method: "POST" })
   .validator((input: unknown) => AskQuestionsInput.parse(input))
@@ -13,3 +13,7 @@ export const getNegotiationTurn = createServerFn({ method: "POST" })
 export const getPanelReview = createServerFn({ method: "POST" })
   .validator((input: unknown) => PanelReviewInput.parse(input))
   .handler(async ({ data }) => generatePanelReview(data));
+
+export const getResumeTailoring = createServerFn({ method: "POST" })
+  .validator((input: unknown) => ResumeTailorInput.parse(input))
+  .handler(async ({ data }) => generateResumeTailoring(data));

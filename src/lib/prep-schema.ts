@@ -102,3 +102,24 @@ export const PanelReviewSchema = z.object({
   ),
 });
 export type PanelReview = z.infer<typeof PanelReviewSchema>;
+
+/* ---------- Resume tailoring ---------- */
+
+export const ResumeTailorInput = z.object({
+  jobBrief: JobBriefSchema,
+  resume: ResumeSchema,
+  promotion: PromotionSchema.optional(),
+});
+
+export const ResumeTailorSchema = z.object({
+  matchScore: z.number(),
+  verdict: z.string(),
+  keywords: z.array(
+    z.object({ term: z.string(), status: z.enum(["have_it", "gap"]), advice: z.string() }),
+  ),
+  bulletRewrites: z.array(z.object({ before: z.string(), after: z.string(), why: z.string() })),
+  reorder: z.array(z.string()),
+  summaryRewrite: z.string(),
+  cutOrShrink: z.array(z.object({ item: z.string(), why: z.string() })),
+});
+export type ResumeTailoring = z.infer<typeof ResumeTailorSchema>;

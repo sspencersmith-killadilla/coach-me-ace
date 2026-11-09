@@ -15,6 +15,9 @@ import {
   type NegotiationTurnInput,
   type PanelReview,
   type PanelReviewInput,
+  ResumeTailorSchema,
+  type ResumeTailoring,
+  type ResumeTailorInput,
 } from "./prep-schema";
 
 type Ctx = {
@@ -105,5 +108,31 @@ overall: 2-3 sentences on how the panel as a whole likely leans and why. ${HUMAN
       .map((e) => `[${e.panelist}] Q: ${e.question}\nA: ${e.answer || "(no answer)"}`)
       .join("\n\n")}`,
     PanelReviewSchema,
+  );
+}
+
+export function generateResumeTailoring(data: z.infer<typeof ResumeTailorInput>) {
+  const promo = data.promotion?.isActive;
+  const source = data.resume.sourceText?.trim();
+  return runStructured<ResumeTailoring>(
+    `You are an expert resume coach. Recommend concrete edits so this resume lands for ${
+      promo
+        ? "the internal promotion described (frame it as a promotion packet / internal resume)"
+        : "this specific job posting"
+    }.
+STRICT HONESTY: only reword, reorder, or trim what the resume already contains. Never invent employers, titles, numbers, tools, or achievements. Where a metric would help but isn't given, insert a placeholder like "[add % improvement]".
+Return:
+- matchScore: integer 1-10 for how well the resume reads against the posting right now.
+- verdict: 2 sentences on the biggest win and biggest problem.
+- keywords: 5-10 important terms from the posting. status "have_it" if the resume shows the experience but doesn't use the posting's wording (advice = where to say it), "gap" if it's genuinely missing (advice = honest way to handle it, never fake it).
+- bulletRewrites: 3-6 items. before = an existing bullet quoted verbatim from the resume; after = the stronger version using the posting's language; why = one sentence.
+- reorder: 2-4 short instructions on what to move up front or regroup.
+- summaryRewrite: a new 2-3 sentence top-of-resume summary aimed at this role.
+- cutOrShrink: 0-4 items that take space without helping for this role.
+${HUMAN}`,
+    `Posting:\n${describeJobBrief(data.jobBrief)}\n\nParsed resume:\n${describeResume(data.resume)}${
+      promo && data.promotion ? `\n\nPromotion context:\n${describePromotion(data.promotion)}` : ""
+    }\n\nOriginal resume text:\n${source ? source.slice(0, 40000) : "(not available — quote bullets from the parsed highlights instead)"}`,
+    ResumeTailorSchema,
   );
 }

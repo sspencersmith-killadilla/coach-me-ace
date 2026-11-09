@@ -3,6 +3,7 @@ import { Award, Heart, MessageCircleQuestion, Mic, Target, Timer } from "lucide-
 import { Button } from "@/components/ui/button";
 import { JobPostingUpload } from "@/components/interview/JobPostingUpload";
 import { PreInterviewBriefing } from "@/components/interview/PreInterviewBriefing";
+import { ResumeTailoring } from "@/components/interview/ResumeTailoring";
 import { ProgressCard } from "@/components/interview/ProgressCard";
 import { PromotionSetup } from "@/components/interview/PromotionSetup";
 import { ResumeUpload } from "@/components/interview/ResumeUpload";
@@ -303,6 +304,7 @@ function Welcome() {
         <ResumeUpload />
         <PromotionSetup />
         <PreInterviewBriefing practiceSearch={{ mode: "random", count, cats, tone }} />
+        <ResumeTailoring />
 
         <div className="mt-16 grid gap-4 sm:grid-cols-3">
           {highlights.map(({ icon: Icon, title, body }) => (
