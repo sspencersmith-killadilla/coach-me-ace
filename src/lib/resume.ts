@@ -6,12 +6,21 @@ export const ResumeExperienceSchema = z.object({
   highlights: z.array(z.string()),
 });
 
-export const ResumeSchema = z.object({
+const ResumeBase = {
   summary: z.string(),
   skills: z.array(z.string()),
   experience: z.array(ResumeExperienceSchema),
   education: z.array(z.string()),
+};
+
+export const ResumeSchema = z.object({
+  ...ResumeBase,
+  /** Plain-text copy of the original resume, kept so tailoring can quote real bullets. */
+  sourceText: z.string().max(40000).optional(),
 });
+
+/** What the parser model returns: the brief plus a verbatim transcription. */
+export const ResumeParseSchema = z.object({ ...ResumeBase, sourceText: z.string() });
 
 export type Resume = z.infer<typeof ResumeSchema>;
 
@@ -24,7 +33,7 @@ export const ResumeInput = z.object({
 
 export const RESUME_SYSTEM_PROMPT = `You read resumes and CVs and distil them into a short structured brief for an interview coach.
 
-Return: summary (2-4 sentences capturing the candidate's background and strengths), skills (the 6-12 most relevant skills, tools, or qualifications), experience (the 2-4 most relevant roles, each with title, company, and 2-4 concise bullet highlights), education (short entries such as degrees or certifications). Be faithful to the document; never invent details it does not contain.`;
+Return: summary (2-4 sentences capturing the candidate's background and strengths), skills (the 6-12 most relevant skills, tools, or qualifications), experience (the 2-4 most relevant roles, each with title, company, and 2-4 concise bullet highlights), education (short entries such as degrees or certifications), sourceText (a faithful plain-text transcription of the whole resume, keeping every bullet line verbatim, one per line). Be faithful to the document; never invent details it does not contain.`;
 
 export function describeResume(resume: Resume) {
   const experienceText = resume.experience
