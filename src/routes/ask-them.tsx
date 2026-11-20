@@ -7,7 +7,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getAskQuestions } from "@/lib/prep.functions";
 import type { AskQuestions } from "@/lib/prep-schema";
-import { loadAskQuestions, saveAskQuestions } from "@/lib/prep-store";
+import {
+  ASK_QUESTION_LIMIT,
+  ASK_QUESTION_MAX_LENGTH,
+  loadAskQuestions,
+  normalizeAskQuestions,
+  saveAskQuestions,
+} from "@/lib/prep-store";
 import { usePrepContext } from "@/lib/use-prep-context";
 
 const TITLE = "Questions to ask them — Mock Interview Coach";
@@ -38,19 +44,24 @@ function AskThem() {
 
   useEffect(() => {
     const saved = loadAskQuestions();
-    if (saved.length) setDrafts(saved);
+    if (saved.length) {
+      setDrafts(saved);
+      saveAskQuestions(saved);
+    }
   }, []);
 
   const updateDrafts = (next: string[]) => {
-    setDrafts(next);
-    saveAskQuestions(next.filter((d) => d.trim()));
+    const normalized = normalizeAskQuestions(next);
+    setDrafts(normalized);
+    saveAskQuestions(normalized.filter((d) => d.trim()));
   };
 
   const run = async () => {
     setPending(true);
     setError(null);
     try {
-      setResult(await request({ data: { ...context, drafts: drafts.filter((d) => d.trim()) } }));
+      const draftsToCoach = normalizeAskQuestions(drafts.filter((d) => d.trim()));
+      setResult(await request({ data: { ...context, drafts: draftsToCoach } }));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Something went wrong.");
     } finally {
@@ -65,12 +76,16 @@ function AskThem() {
     >
       <section className="rounded-3xl border border-border bg-card p-6 shadow-sm">
         <h2 className="font-semibold text-foreground">Your questions</h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Up to {ASK_QUESTION_LIMIT} questions, {ASK_QUESTION_MAX_LENGTH} characters each.
+        </p>
         <div className="mt-3 space-y-2">
           {drafts.map((draft, index) => (
             <div key={index} className="flex gap-2">
               <Input
                 value={draft}
                 aria-label={`Your question ${index + 1}`}
+                maxLength={ASK_QUESTION_MAX_LENGTH}
                 placeholder="e.g. What would make someone a standout in this role after six months?"
                 onChange={(event) =>
                   updateDrafts(drafts.map((d, i) => (i === index ? event.target.value : d)))
@@ -91,6 +106,7 @@ function AskThem() {
           <Button
             variant="outline"
             className="rounded-full"
+            disabled={drafts.length >= ASK_QUESTION_LIMIT}
             onClick={() => updateDrafts([...drafts, ""])}
           >
             <Plus className="size-4" aria-hidden /> Add a question
@@ -100,6 +116,11 @@ function AskThem() {
             Coach my questions
           </Button>
         </div>
+        {drafts.filter((draft) => draft.trim()).length >= ASK_QUESTION_LIMIT ? (
+          <p className="mt-3 text-sm text-muted-foreground">
+            You’ve reached the 10-question limit. Remove a question to add another.
+          </p>
+        ) : null}
         {error ? <p className="mt-3 text-sm text-destructive">{error}</p> : null}
       </section>
 
@@ -142,6 +163,7 @@ function AskThem() {
               <Button
                 variant="link"
                 className="h-auto p-0 text-sm"
+                disabled={drafts.filter((d) => d.trim()).length >= ASK_QUESTION_LIMIT}
                 onClick={() => updateDrafts([...drafts.filter((d) => d.trim()), item.question])}
               >
                 Add to my list

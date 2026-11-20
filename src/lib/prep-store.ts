@@ -104,11 +104,23 @@ export function topStories(stories: Story[], limit = 5): Story[] {
     .slice(0, limit);
 }
 
+export const ASK_QUESTION_LIMIT = 10;
+export const ASK_QUESTION_MAX_LENGTH = 500;
+
+/** Keep saved drafts within the limits accepted by the question coach. */
+export function normalizeAskQuestions(questions: string[]): string[] {
+  return questions
+    .slice(0, ASK_QUESTION_LIMIT)
+    .map((question) => question.slice(0, ASK_QUESTION_MAX_LENGTH));
+}
+
 export function loadAskQuestions(): string[] {
   const raw = read<unknown>(ASK_KEY, []);
-  return Array.isArray(raw) ? raw.filter((q): q is string => typeof q === "string") : [];
+  return Array.isArray(raw)
+    ? normalizeAskQuestions(raw.filter((q): q is string => typeof q === "string"))
+    : [];
 }
 
 export function saveAskQuestions(questions: string[]) {
-  write(ASK_KEY, questions);
+  write(ASK_KEY, normalizeAskQuestions(questions));
 }
