@@ -8,3 +8,5 @@
 - [x] Re-answer comparison
 - [x] Day-before cheat sheet
 - [x] Publish
+- [x] Verify branded favicon and site icon link
+- [x] Add MIT license and project license references
